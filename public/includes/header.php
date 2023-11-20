@@ -1,0 +1,1 @@
+<h1 class="py-2 text-3xl text-center"><?php echo $PAGE_TITLE; ?></h1>

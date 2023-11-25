@@ -4,7 +4,7 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 
 $PAGE_TITLE = "Book an appointment";
 
-$stmt = $dbh->prepare('SELECT id, name FROM departments');
+$stmt = $dbh->prepare('SELECT DepartmentID, DepartmentName FROM Department');
 $stmt->execute();
 $departments = $stmt->fetchAll();
 
@@ -16,15 +16,15 @@ $department_html = <<< html
     html;
 
 foreach ($departments as $department) {
-    $department_html .= "<option " . ((isset($_GET['department_id']) && $_GET['department_id'] == $department['id']) ? "selected" : "") . " value=\"" . $department['id'] . "\">" . $department['name'] . "</option>";
+    $department_html .= "<option " . ((isset($_GET['department_id']) && $_GET['department_id'] == $department['DepartmentID']) ? "selected" : "") . " value=\"" . $department['DepartmentID'] . "\">" . $department['DepartmentName'] . "</option>";
 }
 
 $department_html .= "</select>
     </div>";
 
 if (isset($_GET['department_id'])) {
-    $stmt = $dbh->prepare('SELECT doctors.id, doctors.name FROM doctors LEFT JOIN departments ON doctors.department_id=departments.id');
-    $stmt->execute();
+    $stmt = $dbh->prepare('SELECT Doctor.DoctorID, Doctor.FirstName, Doctor.LastName FROM Doctor INNER JOIN Department ON Doctor.DepartmentID=Department.DepartmentID WHERE Doctor.DepartmentID=:id');
+    $stmt->execute([':id' =>$_GET['department_id']]);
     $doctors = $stmt->fetchAll();
 
     $doctor_html = <<<html
@@ -35,7 +35,7 @@ if (isset($_GET['department_id'])) {
     html;
 
     foreach ($doctors as $doctor) {
-        $doctor_html .= "<option " . (isset($_GET['doctor_id']) && $_GET['doctor_id'] == $doctor['id'] ? "selected" : "") . " value=\"" . $doctor['id'] . "\">" . $doctor['name'] . "</option>";
+        $doctor_html .= "<option " . (isset($_GET['doctor_id']) && $_GET['doctor_id'] == $doctor['DoctorID'] ? "selected" : "") . " value=\"" . $doctor['DoctorID'] . "\">" . $doctor['LastName'] . " " . $doctor['FirstName'] . "</option>";
     }
 
     $doctor_html .= "</select>
@@ -43,8 +43,8 @@ if (isset($_GET['department_id'])) {
 }
 
 if (isset($_GET['department_id'], $_GET['doctor_id'])) {
-    $stmt = $dbh->prepare('SELECT doctors.id, doctors.name FROM doctors LEFT JOIN departments ON doctors.department_id=departments.id');
-    $stmt->execute();
+    $stmt = $dbh->prepare('SELECT Doctor.DoctorID, Doctor.FirstName, Doctor.LastName FROM Doctor INNER JOIN Department ON Doctor.DepartmentID=Department.DepartmentID WHERE Doctor.DepartmentID=:id');
+    $stmt->execute([':id' =>$_GET['department_id']]);
     $doctors = $stmt->fetchAll();
 
     $date_html = <<<html
@@ -64,35 +64,35 @@ if (isset($_GET['department_id'], $_GET['doctor_id'])) {
 }
 
 if (isset($_GET['department_id'], $_GET['doctor_id'], $_GET['date'])) {
-    $stmt = $dbh->prepare('SELECT appointments.date FROM appointments INNER JOIN doctors ON appointments.doctor_id=doctors.id WHERE CAST(appointments.date AS DATE)=:date');
+    $stmt = $dbh->prepare('SELECT Appointment.Date FROM Appointment INNER JOIN Doctor ON Appointment.DoctorID=Doctor.DoctorID WHERE CAST(Appointment.Date AS DATE)=:date');
     $stmt->execute([':date' => $_GET['date']]);
     $unavail_appointments = $stmt->fetchAll();
 
     $time_html = "";
 
     foreach($unavail_appointments as $unavail_appointment) {
-    $time_html .= "<p>" . $unavail_appointment['date'] . "</p>";
+    $time_html .= "<p>" . $unavail_appointment['Date'] . "</p>";
     }
 }
 
-if (isset($_GET['department_id'], $_GET['doctor_id'], $GET_['appointment_date'], $_GET['appointment_time'], $_GET['insurance_number'])) {
-    $stmt = $dbh->prepare('SELECT name FROM departments WHERE id = :id');
-    $stmt->execute([':id' => $_GET['department_id']]);
-    $test = $stmt->fetchAll();
-} elseif (isset($_GET['department_id'])) {
-    $stmt = $dbh->prepare('SELECT name FROM departments WHERE id = :id');
-    $stmt->execute([':id' => $_GET['department_id']]);
-    $department = $stmt->fetch();
-    if (!$department) {
-        $html = <<<HTML
-        <p class="my-4 text-center font-bold text-xl">There is no department with this id!</p>
-        HTML;
-    } else {
-        $html = <<<HTML
-        <p>Selected</p>
-        HTML;
-    }
-}
+// if (isset($_GET['department_id'], $_GET['doctor_id'], $GET_['appointment_date'], $_GET['appointment_time'], $_GET['insurance_number'])) {
+//     $stmt = $dbh->prepare('SELECT name FROM departments WHERE id = :id');
+//     $stmt->execute([':id' => $_GET['department_id']]);
+//     $test = $stmt->fetchAll();
+// } elseif (isset($_GET['department_id'])) {
+//     $stmt = $dbh->prepare('SELECT name FROM departments WHERE id = :id');
+//     $stmt->execute([':id' => $_GET['department_id']]);
+//     $department = $stmt->fetch();
+//     if (!$department) {
+//         $html = <<<HTML
+//         <p class="my-4 text-center font-bold text-xl">There is no department with this id!</p>
+//         HTML;
+//     } else {
+//         $html = <<<HTML
+//         <p>Selected</p>
+//         HTML;
+//     }
+// }
 
 ?>
 

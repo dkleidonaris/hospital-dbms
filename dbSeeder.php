@@ -1,19 +1,18 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
-$sql_files = ['db_create.sql', 'data.sql'];
+$sql_files = scandir($_SERVER['DOCUMENT_ROOT'] . "/../sql");
 
 foreach ($sql_files as $file) {
-    if (file_exists(__DIR__ . "/sql/" . $file)) {
+    $path_info = pathinfo(__DIR__ . "/sql/" . $file);
+    if ($path_info['extension'] == 'sql') {
         $sql = file_get_contents(__DIR__ . "/sql/" . $file);
-    } else {
-        echo "<b>The following sql seed file does not exist: " . $file . "</b>";
-        die();
-    }
 
-    try {
-        $dbh->exec($sql);
-    } catch (PDOException $e) {
-        echo "<b>" . $e->getMessage() . "</b>";
+        try {
+            $dbh->exec($sql);
+        } catch (PDOException $e) {
+            echo "<b>" . $e->getMessage() . "</b>";
+        }
     }
+    
 }

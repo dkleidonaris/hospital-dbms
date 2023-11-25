@@ -1,100 +1,84 @@
-CREATE TABLE `departments` (
-  `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(255)
+CREATE TABLE `Department` (
+  `ID` integer PRIMARY KEY AUTO_INCREMENT,
+  `Name` varchar(255)
 );
 
-CREATE TABLE `rooms` (
-  `room_number` integer PRIMARY KEY,
-  `department_id` integer,
-  `is_empty` boolean
+CREATE TABLE `Patient` (
+  `ID` integer PRIMARY KEY,
+  `FirstName` varchar(255),
+  `LastName` varchar(255),
+  `DateOfBirth` date,
+  `Gender` varchar(255),
+  `ContactNumber` varchar(255),
+  `EmailAddress` varchar(255),
+  `Address` varchar(255)
 );
 
-CREATE TABLE `patients` (
-  `insurance_id` integer PRIMARY KEY,
-  `name` varchar(255)
+CREATE TABLE `Doctor` (
+  `ID` integer PRIMARY KEY AUTO_INCREMENT,
+  `FirstName` varchar(255),
+  `LastName` varchar(255),
+  `DepartmentID` integer,
+  `ContactNumber` varchar(255),
+  `email` varchar(255)
 );
 
-CREATE TABLE `doctors` (
-  `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(255),
-  `department_id` integer
+CREATE TABLE `Nurse` (
+  `ID` integer PRIMARY KEY AUTO_INCREMENT,
+  `FirstName` varchar(255),
+  `LastName` varchar(255),
+  `ContactNumber` varchar(255),
+  `email` varchar(255)
 );
 
-CREATE TABLE `nurses` (
-  `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(255)
+CREATE TABLE `Appointment` (
+  `PatientID` integer,
+  `DoctorID` integer,
+  `Date` datetime,
+
+  PRIMARY KEY (PatientID, DoctorID, Date)
 );
 
-CREATE TABLE `stays` (
-  `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `patient_id` integer,
-  `nurse_id` integer,
-  `room_id` integer,
-  `start_date` date,
-  `end_date` date,
-  `diagnose_name` varchar(255)
+CREATE TABLE `Admission` (
+  `ID` integer PRIMARY KEY AUTO_INCREMENT,
+  `PatientID` integer,
+  `NurseID` integer,
+  `AdmissionStartDate` date,
+  `AdmissionEndDate` date,
+  `RoomNumber` integer
 );
 
-CREATE TABLE `appointments` (
-  `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `date` date,
-  `patient_id` integer,
-  `doctor_id` integer,
-  `prescription_id` integer,
-  `diagnose_name` varchar(255)
+CREATE TABLE `Medication` (
+  `ID` integer PRIMARY KEY AUTO_INCREMENT,
+  `PatientID` integer,
+  `DoctorID` integer,
+  `Name` varchar(255),
+  `Dosage` varchar(255),
+  `Frequency` text,
+  `StartDate` date,
+  `EndDate` date,
+  `OtherDescription` text
 );
 
-CREATE TABLE `prescriptions` (
-  `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `date` date
+CREATE TABLE `Room` (
+  `RoomNumber` integer PRIMARY KEY,
+  `DepartmentID` integer
 );
 
-CREATE TABLE `medicine` (
-  `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `barcode` varchar(255),
-  `name` varchar(255),
-  `description` longtext,
-  `stock` integer
-);
+ALTER TABLE `Doctor` ADD FOREIGN KEY (`DepartmentID`) REFERENCES `Department` (`ID`);
 
-CREATE TABLE `medicine_prescription` (
-  `prescription_id` integer,
-  `medicine_name` varchar(255),
-  `instructions` longtext,
-  `quantity` integer,
-  PRIMARY KEY (`prescription_id`, `medicine_name`)
-);
+ALTER TABLE `Appointment` ADD FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
 
-ALTER TABLE `patients` COMMENT = 'Stores patient info';
+ALTER TABLE `Appointment` ADD FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
 
-ALTER TABLE `doctors` COMMENT = 'Stores doctor info';
+ALTER TABLE `Admission` ADD FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
 
-ALTER TABLE `nurses` COMMENT = 'Stores nurse info';
+ALTER TABLE `Admission` ADD FOREIGN KEY (`NurseID`) REFERENCES `Nurse` (`ID`);
 
-ALTER TABLE `stays` COMMENT = 'Stores stay (hospitalization) info';
+ALTER TABLE `Admission` ADD FOREIGN KEY (`RoomNumber`) REFERENCES `Room` (`RoomNumber`);
 
-ALTER TABLE `appointments` COMMENT = 'Stores appointment info';
+ALTER TABLE `Medication` ADD FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
 
-ALTER TABLE `prescriptions` COMMENT = 'Stores prescription info';
+ALTER TABLE `Medication` ADD FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
 
-ALTER TABLE `medicine` COMMENT = 'Stores medication info';
-
-ALTER TABLE `medicine_prescription` COMMENT = 'Stores quantity of each type of medicine in prescriptions';
-
-ALTER TABLE `rooms` ADD FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
-
-ALTER TABLE `doctors` ADD FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
-
-ALTER TABLE `stays` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`insurance_id`);
-
-ALTER TABLE `stays` ADD FOREIGN KEY (`nurse_id`) REFERENCES `nurses` (`id`);
-
-ALTER TABLE `stays` ADD FOREIGN KEY (`room_id`) REFERENCES `rooms` (`room_number`);
-
-ALTER TABLE `appointments` ADD FOREIGN KEY (`patient_id`) REFERENCES `patients` (`insurance_id`);
-
-ALTER TABLE `appointments` ADD FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`);
-
-ALTER TABLE `appointments` ADD FOREIGN KEY (`prescription_id`) REFERENCES `prescriptions` (`id`);
-
-ALTER TABLE `medicine_prescription` ADD FOREIGN KEY (`prescription_id`) REFERENCES `prescriptions` (`id`);
+ALTER TABLE `Room` ADD FOREIGN KEY (`DepartmentID`) REFERENCES `Department` (`ID`);

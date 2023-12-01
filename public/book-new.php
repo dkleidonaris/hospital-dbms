@@ -3,7 +3,9 @@ include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 
 $PAGE_TITLE = "Book an appointment";
-
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    var_dump($_POST);
+}
 ?>
 
 <!DOCTYPE html>
@@ -17,9 +19,28 @@ $PAGE_TITLE = "Book an appointment";
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/navbar.php"); ?>
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/header.php"); ?>
 
-    <form id="appointment_form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="<?php echo $method; ?>">
-        <div class="flex flex-col gap-4 justify-center items-center">
-            <select name="department_id" id="department_input" class="my-4 p-2 rounded-md"></select>
+    <div id="patient_div" class="flex flex-row gap-2 justify-center items-center my-4">
+        <p>Have you visited our hospital again?</p>
+        <div class="flex flex-row gap-2 items-center">
+            <div class="p-2 rounded-md">
+                <label for="yes">Yes</label>
+                <input name="previous_patient_input" type="radio" value="yes">
+            </div>
+            <div class="p-2 rounded-md">
+                <label for="no">No</label>
+                <input name="previous_patient_input" type="radio" value="no">
+            </div>
+        </div>
+    </div>
+
+
+
+    <form id="appointment_form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+        <div id="form_div" class="flex flex-col gap-4 justify-center items-center">
+            <input id="patient_input" name="patient_id" type="text" class="hidden">
+            <select name="department_id" id="department_input" class="my-2 p-2 rounded-md hidden"></select>
+            <select name="doctor_id" id="doctor_input" class="my-2 p-2 rounded-md hidden"></select>
+            <input name="appointment_date" id="date_input" type="date" class="p-2 rounded-md hidden">
             <table id="timetable" class="hidden">
                 <thead>
                     <tr>
@@ -30,7 +51,7 @@ $PAGE_TITLE = "Book an appointment";
                 <tbody id="timetable_body">
                 </tbody>
             </table>
-            <input value="Next" type="submit" class="p-4 rounded-md bg-gray-300">
+            <input id="form_submit" value="Submit" type="submit" class="p-4 rounded-md bg-gray-300">
         </div>
     </form>
 
@@ -97,6 +118,7 @@ $PAGE_TITLE = "Book an appointment";
 
 
         function departmentChange() {
+            $('#timetable').addClass('hidden');
             var xhr = new XMLHttpRequest();
             var d = document.getElementById('department_input');
             xhr.open('GET', '/api/doctors.php?department_id=' + d.options[d.selectedIndex].value, true);
@@ -104,14 +126,8 @@ $PAGE_TITLE = "Book an appointment";
                 if (this.status == 200) {
                     console.log(this.responseText);
                     var data = JSON.parse(this.responseText);
-                    if (!document.getElementById('doctor_input')) {
-                        var select = document.createElement('select');
-                        select.classList.add('p-2', 'rounded-md');
-                        select.id = 'doctor_input';
-                        document.getElementById('department_input').after(select);
-                    } else {
-                        var select = document.getElementById('doctor_input');
-                    }
+
+                    select = $('#doctor_input')[0];
                     // Clear existing options
                     select.innerHTML = '';
 
@@ -132,6 +148,7 @@ $PAGE_TITLE = "Book an appointment";
                 }
             };
             xhr.send();
+            $('#doctor_input').removeClass('hidden');
             var date = document.getElementById('date_input');
             if (date) {
                 date.value = '';
@@ -139,17 +156,12 @@ $PAGE_TITLE = "Book an appointment";
         }
 
         function doctorChange() {
+            $('#timetable').addClass('hidden');
             var date = document.getElementById('date_input');
-            if (!date) {
-                var input = document.createElement('input');
-                input.id = 'date_input';
-                input.type = 'date';
-                input.classList.add('my-2', 'p-2', 'rounded-md');
-                document.getElementById('doctor_input').after(input);
-                document.getElementById('date_input').addEventListener('change', dateChange);
-            } else {
-                date.value = '';
-            }
+                $('#date_input').removeClass('hidden');
+                $('#date_input').change(dateChange);
+
+                $('#date_input').val() = '';
         }
 
         function dateChange() {
@@ -209,12 +221,59 @@ $PAGE_TITLE = "Book an appointment";
             xhr.send();
         }
 
+        $('input[type=radio][name=previous_patient_input]').change(function() {
+            if (!($('#insurance_div').length)) {
+                var div = document.createElement('div');
+                div.id = 'insurance_div';
+                $('#patient_div').after(div);
+                $('#insurance_div').addClass("flex flex-row gap-2 justify-center items-center my-4");
+
+                var label = document.createElement('label');
+                label.id = 'insurance_label';
+                label.append('Please enter your Insurance ID:');
+                $('#insurance_div').append(label);
+
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.id = "insurance_input";
+                $('#insurance_label').after(input);
+                $('#insurance_input').addClass("p-2 rounded-md");
+
+                var button = document.createElement('button');
+                button.id = 'insurance_button';
+                $('#insurance_input').after(button);
+                $('#insurance_button').html('Search').addClass('p-2 bg-blue-400 rounded-md');
+
+                $('#insurance_button').click(function() {
+                    $.ajax({
+                        url: "/api/patient.php",
+                        data: {
+                            'insurance_id': $('#insurance_input').val(),
+                            'scope': 'appointment'
+                        },
+                        success: function(result) {
+                            var data = JSON.parse(result);
+                            if (data.results.length) {
+                                $('#insurance_div').remove();
+
+                                $('#patient_div').empty().append('<p>Hi</p>');
+                                $('#patient_div').append('<p class="font-bold">' + data.results[0].LastName + ' ' + data.results[0].FirstName + '</p>');
+
+                                $('#department_input').removeClass('hidden');
+                                loadDepartments();
+                                $('#department_input').change(departmentChange);
+                            }
+                        }
+                    });
+                });
+            }
+        });
+
 
         // Load data when the document is ready
         $(document).ready(function() {
-            loadDepartments();
+
         });
-        document.getElementById('department_input').addEventListener('change', departmentChange);
     </script>
 </body>
 

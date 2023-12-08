@@ -1,5 +1,4 @@
 <?php
-echo $_SERVER['DOCUMENT_ROOT'];
 //include($_SERVER['DOCUMENT_ROOT'] . "/../dbSeeder.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 //include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");

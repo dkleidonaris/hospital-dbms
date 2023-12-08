@@ -1,3 +1,11 @@
+CREATE TABLE `User` (
+  `email` varchar(255) PRIMARY KEY,
+  `password` varchar(255),
+  `type` varchar(255),
+  `NurseID` integer,
+  `DoctorID` integer
+);
+
 CREATE TABLE `Department` (
   `ID` integer PRIMARY KEY AUTO_INCREMENT,
   `Name` varchar(255)
@@ -35,7 +43,6 @@ CREATE TABLE `Appointment` (
   `PatientID` integer,
   `DoctorID` integer,
   `Date` datetime,
-
   PRIMARY KEY (PatientID, DoctorID, Date)
 );
 
@@ -65,20 +72,57 @@ CREATE TABLE `Room` (
   `DepartmentID` integer
 );
 
-ALTER TABLE `Doctor` ADD FOREIGN KEY (`DepartmentID`) REFERENCES `Department` (`ID`);
+ALTER TABLE
+  `Doctor`
+ADD
+  FOREIGN KEY (`DepartmentID`) REFERENCES `Department` (`ID`);
 
-ALTER TABLE `Appointment` ADD FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
+ALTER TABLE
+  `Appointment`
+ADD
+  FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
 
-ALTER TABLE `Appointment` ADD FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
+ALTER TABLE
+  `Appointment`
+ADD
+  FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
 
-ALTER TABLE `Admission` ADD FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
+ALTER TABLE
+  `Admission`
+ADD
+  FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
 
-ALTER TABLE `Admission` ADD FOREIGN KEY (`NurseID`) REFERENCES `Nurse` (`ID`);
+ALTER TABLE
+  `Admission`
+ADD
+  FOREIGN KEY (`NurseID`) REFERENCES `Nurse` (`ID`);
 
-ALTER TABLE `Admission` ADD FOREIGN KEY (`RoomNumber`) REFERENCES `Room` (`RoomNumber`);
+ALTER TABLE
+  `Admission`
+ADD
+  FOREIGN KEY (`RoomNumber`) REFERENCES `Room` (`RoomNumber`);
 
-ALTER TABLE `Medication` ADD FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
+ALTER TABLE
+  `Medication`
+ADD
+  FOREIGN KEY (`PatientID`) REFERENCES `Patient` (`ID`);
 
-ALTER TABLE `Medication` ADD FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
+ALTER TABLE
+  `Medication`
+ADD
+  FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
 
-ALTER TABLE `Room` ADD FOREIGN KEY (`DepartmentID`) REFERENCES `Department` (`ID`);
+ALTER TABLE
+  `Room`
+ADD
+  FOREIGN KEY (`DepartmentID`) REFERENCES `Department` (`ID`);
+
+ALTER TABLE
+  `User`
+ADD
+  FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
+
+ALTER TABLE
+  `User`
+ADD
+  FOREIGN KEY (`NurseID`) REFERENCES `Nurse` (`ID`);

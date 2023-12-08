@@ -3,151 +3,20 @@ include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 
 $PAGE_TITLE = "Book an appointment";
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $datetime = date_format(date_create($_POST['appointment_date'] . ' ' . $_POST['appointment_time']), 'Y-m-d H:i:s');
 
-$method = "get";
+    $stmt = $dbh->prepare('SELECT * FROM Appointment WHERE PatientID = ? AND DoctorID = ? AND Date = ?');
+    $stmt->execute(array($_POST['patient_id'], $_POST['doctor_id'], $datetime));
 
-// if(isset($_GET['department_id'], $_GET['doctor_id'], $_GET['date'])) {
-//     $method = 'post';
-// } else {
-//     $method = 'get';
-// }
+    if ($stmt->rowCount() < 1) {
 
-$stmt = $dbh->prepare('SELECT ID, Name FROM Department');
-$stmt->execute();
-$departments = $stmt->fetchAll();
-
-$department_html = <<< html
-    <div class="my-4 flex gap-2 items-center">
-            <p class="font-bold text-xl">Department:</p>
-            <select id="department_id" name="department_id" class="p-2 rounded-md">
-                <option>Select a department...</option>            
-    html;
-
-foreach ($departments as $department) {
-    $department_html .= "<option " . ((isset($_GET['department_id']) && $_GET['department_id'] == $department['ID']) ? "selected" : "") . " value=\"" . $department['ID'] . "\">" . $department['Name'] . "</option>";
-}
-
-$department_html .= "</select>
-    </div>";
-
-if (isset($_GET['department_id'])) {
-    $stmt = $dbh->prepare('SELECT Doctor.ID, Doctor.FirstName, Doctor.LastName FROM Doctor INNER JOIN Department ON Doctor.ID=Department.ID WHERE Doctor.ID=:id');
-    $stmt->execute([':id' => $_GET['department_id']]);
-    $doctors = $stmt->fetchAll();
-
-    $doctor_html = <<<html
-    <div id="doctor_div" class="my-4 flex gap-2 items-center">
-        <p class="font-bold text-xl">Doctor:</p>
-        <select id="doctor_id" name="doctor_id" class="p-2 rounded-md">
-                <option value="default">Select a doctor...</option> 
-    html;
-
-    foreach ($doctors as $doctor) {
-        $doctor_html .= "<option " . (isset($_GET['doctor_id']) && $_GET['doctor_id'] == $doctor['ID'] ? "selected" : "") . " value=\"" . $doctor['ID'] . "\">" . $doctor['LastName'] . " " . $doctor['FirstName'] . "</option>";
+        $stmt = $dbh->prepare('INSERT INTO Appointment (PatientID, DoctorID, Date) VALUES (?, ?, ?)');
+        $stmt->execute(array($_POST['patient_id'], $_POST['doctor_id'], $datetime));
+        echo "<script>alert('Your appointment has been created!')</script>";
+        $_POST = array();
     }
-
-    $doctor_html .= "</select>
-        </div>";
 }
-
-if (isset($_GET['department_id'], $_GET['doctor_id'])) {
-    $stmt = $dbh->prepare('SELECT Doctor.ID, Doctor.FirstName, Doctor.LastName FROM Doctor INNER JOIN Department ON Doctor.DepartmentID=Department.ID WHERE Doctor.DepartmentID=:id');
-    $stmt->execute([':id' => $_GET['department_id']]);
-    $doctors = $stmt->fetchAll();
-
-    $date_html = <<<html
-    <div id="date_div" class="my-4 flex gap-2 items-center">
-        <p class="font-bold text-xl">Date:</p>
-        <input id="date"
-    html;
-
-    if (!empty($_GET['date'])) {
-        $date_html .= "value=\"" . $_GET['date'] . "\"";
-    }
-
-    $date_html .= <<<html
-    type="date" name="date" />
-    </div>
-    html;
-}
-
-if (isset($_GET['department_id'], $_GET['doctor_id'], $_GET['date'])) {
-    $stmt = $dbh->prepare('SELECT Appointment.Date FROM Appointment INNER JOIN Doctor ON Appointment.DoctorID=Doctor.ID WHERE CAST(Appointment.Date AS DATE)=:date');
-    $stmt->execute([':date' => $_GET['date']]);
-    $results = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-
-    $unavail_appointments = [];
-
-    foreach ($results as $result) {
-        array_push($unavail_appointments, date_format(date_create($result), "H:i"));
-    }
-
-    print_r($unavail_appointments);
-
-    $displayed_date = date('l', strtotime($_GET['date'])) . " " . date_format(date_create($_GET['date']), "d/m/Y");
-
-    $time_html = <<<html
-    <div id="table_div" class="my-4 flex gap-2 items-center">
-        <p class="font-bold text-xl">Time:</p>
-        <table class="border-separate border-spacing-y-2">
-            <tr>
-                <th>
-                    Time
-                </th>
-                <th>
-                    Select
-                </th>
-            </tr>
-    html;
-
-    foreach (APPOINTMENT_TIMES as $appointment_time) {
-        if (in_array($appointment_time, $unavail_appointments)) {
-            $table_class = "opacity-20 bg-gray-300";
-            $radio_class = "disabled";
-        } else {
-            $table_class = "";
-            $radio_class = "";
-        }
-        $time_html .= <<<html
-        <tr class="{$table_class}">
-            <td class="p-2 text-center">
-                {$appointment_time}
-            </td>
-            <td>
-            <div class="flex justify-center">
-                    <input id="time" {$radio_class} name="time" type="radio" value="{$appointment_time}"/>
-                </div>
-            </td>
-        </tr>
-        html;
-        // $time_html .= "<p>" . $unavail_appointment['Date'] . "</p>";
-    }
-
-    $time_html .= <<<html
-        </table>
-    </div>
-    html;
-}
-
-// if (isset($_GET['department_id'], $_GET['doctor_id'], $GET_['appointment_date'], $_GET['appointment_time'], $_GET['insurance_number'])) {
-//     $stmt = $dbh->prepare('SELECT name FROM departments WHERE id = :id');
-//     $stmt->execute([':id' => $_GET['department_id']]);
-//     $test = $stmt->fetchAll();
-// } elseif (isset($_GET['department_id'])) {
-//     $stmt = $dbh->prepare('SELECT name FROM departments WHERE id = :id');
-//     $stmt->execute([':id' => $_GET['department_id']]);
-//     $department = $stmt->fetch();
-//     if (!$department) {
-//         $html = <<<HTML
-//         <p class="my-4 text-center font-bold text-xl">There is no department with this id!</p>
-//         HTML;
-//     } else {
-//         $html = <<<HTML
-//         <p>Selected</p>
-//         HTML;
-//     }
-// }
-
 ?>
 
 <!DOCTYPE html>
@@ -161,36 +30,339 @@ if (isset($_GET['department_id'], $_GET['doctor_id'], $_GET['date'])) {
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/navbar.php"); ?>
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/header.php"); ?>
 
-    <form id="appointment_form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="<?php echo $method; ?>">
-        <div class="flex flex-col gap-4 justify-center items-center">
-            <?php echo $department_html; ?>
-            <?php if (isset($doctor_html)) echo $doctor_html; ?>
-            <?php if (isset($date_html)) echo $date_html; ?>
-            <?php if (isset($time_html)) echo $time_html; ?>
+    <div id="patient_div" class="flex flex-row gap-2 justify-center items-center my-4">
+        <p>Have you visited our hospital again?</p>
+        <div class="flex flex-row gap-2 items-center">
+            <div class="p-2 rounded-md">
+                <label for="yes">Yes</label>
+                <input id="previous_patient_yes" name="previous_patient" type="radio" value="yes">
+            </div>
+            <div class="p-2 rounded-md">
+                <label for="no">No</label>
+                <input id="previous_patient_no" name="previous_patient" type="radio" value="no">
+            </div>
+        </div>
+    </div>
 
-            <input value="Next" type="submit" class="p-4 rounded-md bg-gray-300">
+
+
+    <form id="appointment_form" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+        <div id="form_div" class="flex flex-col gap-4 justify-center items-center">
+            <input id="patient_input" name="patient_id" type="text" class="hidden">
+            <select name="department_id" id="department_input" class="my-2 p-2 rounded-md hidden"></select>
+            <select name="doctor_id" id="doctor_input" class="my-2 p-2 rounded-md hidden"></select>
+            <input name="appointment_date" id="date_input" type="date" class="p-2 rounded-md hidden">
+            <table id="timetable" class="hidden">
+                <thead>
+                    <tr>
+                        <th scope="col" class="p-2">Time</th>
+                        <th scope="col" class="p-2">Select</th>
+                    </tr>
+                </thead>
+                <tbody id="timetable_body">
+                </tbody>
+            </table>
+            <input id="form_submit" value="Submit" type="submit" class="hidden p-4 rounded-md bg-gray-300">
         </div>
     </form>
 
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/body-scripts.php"); ?>
     <script>
-        window.onload = function() {
-            var triggerField = document.getElementById("department_id");
-            var resetFields = ["doctor_id", "date", "time"];
+        var appointment_times = <?php echo json_encode(APPOINTMENT_TIMES); ?>;
 
-            document.getElementById("department_id").addEventListener('change', function() {
-                document.getElementById('doctor_id').value = 'default';
-                document.getElementById('date').value = '';
-                document.getElementById("doctor_div").classList.add("hidden");
-                document.getElementById("date_div").classList.add("hidden");
-                document.getElementById("table_div").classList.add("hidden");
-            });
-            document.getElementById("doctor_id").addEventListener('change', function() {
-                document.getElementById('date').value = '';
+        function loadDepartments() {
+            $.ajax({
+                url: "/api/departments.php",
+                data: {},
+                success: function(result) {
+                    console.log(result);
+                    if (true) {
+                        var data = JSON.parse(result);
+                        var select = document.getElementById('department_input');
 
-                document.getElementById("table_div").classList.add("hidden");
+                        // Clear existing options
+                        select.innerHTML = '';
+
+                        // Add placeholder option
+                        var option = document.createElement('option');
+                        option.value = 'default';
+                        option.textContent = 'Select a department';
+                        select.appendChild(option);
+
+                        // Add new options
+                        data.results.forEach(function(item) {
+                            var option = document.createElement('option');
+                            option.value = item.Id;
+                            option.textContent = item.Name;
+                            select.appendChild(option);
+                        });
+                    }
+                }
             });
-        };
+        }
+
+
+        function departmentChange() {
+            $('#timetable').addClass('hidden');
+            var xhr = new XMLHttpRequest();
+            var d = document.getElementById('department_input');
+            xhr.open('GET', '/api/doctors.php?department_id=' + d.options[d.selectedIndex].value, true);
+            xhr.onload = function() {
+                if (this.status == 200) {
+                    console.log(this.responseText);
+                    var data = JSON.parse(this.responseText);
+
+                    select = $('#doctor_input')[0];
+                    // Clear existing options
+                    select.innerHTML = '';
+
+                    // Add placeholder option
+                    var option = document.createElement('option');
+                    option.value = 'default';
+                    option.textContent = 'Select a doctor';
+                    select.appendChild(option);
+
+                    // Add new options
+                    data.results.forEach(function(item) {
+                        var option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = item.LastName + ' ' + item.FirstName;
+                        select.appendChild(option);
+                    });
+                    select.addEventListener('change', doctorChange);
+                }
+            };
+            xhr.send();
+            $('#doctor_input').removeClass('hidden');
+            var date = document.getElementById('date_input');
+            if (date) {
+                date.value = '';
+            }
+        }
+
+        function doctorChange() {
+            $('#timetable').addClass('hidden');
+            var date = document.getElementById('date_input');
+            $('#date_input').removeClass('hidden');
+            $('#date_input').change(dateChange);
+
+            $('#date_input').val('');
+        }
+
+        function dateChange() {
+            // var xhr = new XMLHttpRequest();
+            var doctor = document.getElementById('doctor_input');
+            var date = document.getElementById('date_input');
+            $.ajax({
+                url: "/api/appointments.php",
+                data: {
+                    'scope': 'patient',
+                    'doctor_id': doctor.options[doctor.selectedIndex].value,
+                    'appointment_date': date.value
+                },
+                success: function(result) {
+                    var data = JSON.parse(result);
+                    console.log(data);
+
+                    var unavail_appointments = [];
+                    data.results.forEach(function(item) {
+                        unavail_appointments.push(item.Date);
+                    });
+                    var table = document.getElementById('timetable');
+                    var body = document.getElementById('timetable_body');
+
+                    // Clear existing options
+                    body.innerHTML = '';
+
+                    // Add new options
+                    appointment_times.forEach(function(item) {
+                        var row = document.createElement('tr');
+                        body.appendChild(row);
+                        var left_cell = document.createElement('th');
+                        left_cell.classList.add('p-2');
+                        left_cell.innerText = item;
+                        row.appendChild(left_cell);
+                        var right_cell = document.createElement('td');
+                        right_cell.classList.add('text-center');
+                        right_cell.classList.add('p-2');
+                        row.appendChild(right_cell);
+                        var input = document.createElement('input');
+                        input.classList.add('mx-auto');
+                        input.type = 'radio';
+                        input.name = "appointment_time";
+                        input.value = item;
+                        if (unavail_appointments.includes(item)) {
+                            input.setAttribute('disabled', '');
+                            row.classList.add('opacity-20', 'bg-gray-400');
+                        }
+                        right_cell.appendChild(input);
+                    });
+
+                    $('input[type=radio][name=appointment_time]').change(function() {
+                        $('#form_submit').removeClass('hidden');
+                        this.parentElement.parentElement.classList.add('bg-blue-500');
+                        $('input[type=radio][name=appointment_time]').each(function() {
+                            if (!this.checked) {
+                                this.parentElement.parentElement.classList.remove('bg-blue-500');
+                            }
+                        });
+                    });
+                    table.classList.remove('hidden');
+                }
+            });
+            // xhr.open('GET', '/api/appointments.php?doctor_id=' + doctor.options[doctor.selectedIndex].value + '&appointment_date=' + date.value, true);
+            // xhr.onload = function() {
+            //     if (this.status == 200) {
+            //         var data = JSON.parse(this.responseText);
+
+            //         var unavail_appointments = [];
+            //         data.results.forEach(function(item) {
+            //             unavail_appointments.push(item.Date);
+            //         });
+            //         var table = document.getElementById('timetable');
+            //         var body = document.getElementById('timetable_body');
+
+            //         // Clear existing options
+            //         body.innerHTML = '';
+
+            //         // Add new options
+            //         appointment_times.forEach(function(item) {
+            //             var row = document.createElement('tr');
+            //             body.appendChild(row);
+            //             var left_cell = document.createElement('th');
+            //             left_cell.classList.add('p-2');
+            //             left_cell.innerText = item;
+            //             row.appendChild(left_cell);
+            //             var right_cell = document.createElement('td');
+            //             right_cell.classList.add('text-center');
+            //             right_cell.classList.add('p-2');
+            //             row.appendChild(right_cell);
+            //             var input = document.createElement('input');
+            //             input.classList.add('mx-auto');
+            //             input.type = 'radio';
+            //             input.name = "appointment_time";
+            //             input.value = item;
+            //             if (unavail_appointments.includes(item)) {
+            //                 input.setAttribute('disabled', '');
+            //                 row.classList.add('opacity-20', 'bg-gray-400');
+            //             }
+            //             right_cell.appendChild(input);
+            //         });
+
+            //         $('input[type=radio][name=appointment_time]').change(function() {
+            //             $('#form_submit').removeClass('hidden');
+            //             this.parentElement.parentElement.classList.add('bg-blue-500');
+            //             $('input[type=radio][name=appointment_time]').each(function() {
+            //                 if (!this.checked) {
+            //                     this.parentElement.parentElement.classList.remove('bg-blue-500');
+            //                 }
+            //             });
+            //         });
+            //         table.classList.remove('hidden');
+            //     }
+            // };
+            // xhr.send();
+        }
+
+        $('#previous_patient_yes').change(function() {
+            $('#patient_details').remove();
+            if (!($('#insurance_div').length)) {
+                var div = document.createElement('div');
+                div.id = 'insurance_div';
+                $('#patient_div').after(div);
+                $('#insurance_div').addClass("flex flex-row gap-2 justify-center items-center my-4");
+                var label = document.createElement('label');
+                label.id = 'insurance_label';
+                label.append('Please enter your Insurance ID:');
+                $('#insurance_div').append(label);
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.id = "insurance_input";
+                $('#insurance_label').after(input);
+                $('#insurance_input').addClass("p-2 rounded-md");
+                var button = document.createElement('button');
+                button.id = 'insurance_button';
+                $('#insurance_input').after(button);
+                $('#insurance_button').html('Search').addClass('p-2 bg-blue-400 rounded-md');
+                $('#insurance_button').click(function() {
+                    $.ajax({
+                        url: "/api/patient.php",
+                        data: {
+                            'insurance_id': $('#insurance_input').val(),
+                            'scope': 'appointment'
+                        },
+                        success: function(result) {
+                            var data = JSON.parse(result);
+                            if (data.results.length) {
+                                setPatient(data.results[0].ID, data.results[0].LastName, data.results[0].FirstName);
+                            } else {
+                                alert('This insurance ID doesn\'t correspond to a patient. Try again.');
+                                $('#insurance_input').val('');
+                            }
+                        }
+                    });
+                });
+            }
+
+        });
+
+        $('#previous_patient_no').change(function() {
+            $('#insurance_div').remove();
+            $('#patient_div').after('<div id="patient_details" class="flex flex-col gap-4 items-center"></div>');
+            $('#patient_details').prepend('<p class="font-bold text-xl">Patient Details</p>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="insurance_number">Insurance Number</label><input type="text" id="insuranceid_input" name="insurance_number" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="first_name">First Name</label><input type="text" id="firstname_input" name="first_name" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="last_name">Last Name</label><input type="text" id="lastname_input" name="last_name" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="date_of_birth">Date of Birth</label><input type="date" id="dateofbirth_input" name="date_of_birth" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="Gender">Gender</label><select id="gender_input" name="gender" class="p-2 rounded-md"></select></div>');
+            $('select[name=gender]').append('<option value="male" selected>Male</option><option value="female">Female</option>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="contact_number">Contact Number</label><input type="text" id="contactnumber_input" name="contact_number" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="email_address">Email Address</label><input type="text" id="emailaddress_input" name="email_address" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="address">Address</label><input type="text" id="address_input" name="address" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<button id="patient_register" class="p-2 rounded-md bg-blue-500">Register</button>');
+
+            $('#patient_register').click(function() {
+                if (!$('#insuranceid_input').val() || !$('#firstname_input').val() || !$('#lastname_input').val() || !$('#dateofbirth_input').val() || !$('#gender_input').val() || !$('#contactnumber_input').val() || !$('#emailaddress_input').val() || !$('#address_input').val()) {
+                    alert('Please fill all the fields!');
+                } else {
+                    $.post('/api/patient.php', {
+                        insurance_number: $('#insuranceid_input').val(),
+                        first_name: $('#firstname_input').val(),
+                        last_name: $('#lastname_input').val(),
+                        date_of_birth: $('#dateofbirth_input').val(),
+                        gender: $('#gender_input').val(),
+                        contact_number: $('#contactnumber_input').val(),
+                        email_address: $('#emailaddress_input').val(),
+                        address: $('#address_input').val(),
+                    }).done(function(response) {
+                        var data = JSON.parse(response);
+                        console.log(response.status);
+                        setPatient(data.results[0].ID, data.results[0].LastName, data.results[0].FirstName);
+                        $('#patient_details').remove();
+                    });
+                }
+            });
+
+
+
+        });
+
+        function setPatient(insuranceId, lastName, firstName) {
+            console.log(insuranceId);
+            $('#patient_input').val(insuranceId);
+            $('#insurance_div').remove();
+            $('#patient_div').empty().append('<p>Hi</p>');
+            $('#patient_div').append('<p class="font-bold">' + lastName + ' ' + firstName + '</p>');
+            $('#department_input').removeClass('hidden');
+            loadDepartments();
+            $('#department_input').change(departmentChange);
+        }
+
+
+        // Load data when the document is ready
+        $(document).ready(function() {
+
+        });
     </script>
 </body>
 

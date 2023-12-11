@@ -1,6 +1,8 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/doctor.php");
+
 
 $PAGE_TITLE = "Patient Tab";
 

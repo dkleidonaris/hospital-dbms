@@ -15,9 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $mail->AltBody = "This is the plain text version of the email content";
 
     if (!$mail->send()) {
-        header("Location: contact.php/?message=Mailer Error: " . http_build_query(["message" => $mail->ErrorInfo]));
+        $_SESSION['message_type'] = 'danger';
+        $_SESSION['message'] = 'Mailer Error: ' . $mail->ErrorInfo;
+        header("Location: /contact.php");
+        exit;
     } else {
-        header("Location: contact.php/?" . http_build_query(["message" => "Your message was successfully sent"]));
+        $_SESSION['message_type'] = 'success';
+        $_SESSION['message'] = 'Your message was successfully sent! We will soon be in touch.';
+        header("Location: /contact.php");
+        exit;
     }
 }
 ?>
@@ -30,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/navbar.php"); ?>
-    <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/message.php"); ?>
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/header.php"); ?>
 
     <div class="flex justify-center p-2 mx-auto">

@@ -11,4 +11,11 @@
 
         </div>
     </div>
+    <?php
+    if (isset($_SESSION['message_type'], $_SESSION['message'])) {
+        include($_SERVER["DOCUMENT_ROOT"] . "/includes/message.inc.php");
+    }
+    unset($_SESSION["message_type"]);
+    unset($_SESSION["message"]);
+    ?>
 </nav>

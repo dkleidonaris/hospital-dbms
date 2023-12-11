@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $response['results'] = $results;
         $response['status'] = 'OK';
     } elseif ($_GET['scope'] == 'doctor') {
-        $stmt = $dbh->prepare('SELECT a.Date, p.LastName, p.FirstName FROM Appointment a INNER JOIN Doctor d ON a.DoctorID=d.ID INNER JOIN Patient p ON p.ID=a.PatientID WHERE CAST(a.Date AS DATE)=:date AND d.ID=:doctor_id');
+        $stmt = $dbh->prepare('SELECT a.Date, p.LastName, p.FirstName FROM Appointment a INNER JOIN Doctor d ON a.DoctorID=d.ID INNER JOIN Patient p ON p.ID=a.PatientID WHERE CAST(a.Date AS DATE)=:date AND d.ID=:doctor_id ORDER BY a.Date');
         $stmt->execute([':doctor_id' => $_SESSION['doctor_id'], ':date' => $_GET['appointment_date']]);
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);

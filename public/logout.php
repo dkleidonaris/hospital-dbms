@@ -7,5 +7,9 @@ $PAGE_TITLE = "Logout";
 $_SESSION = array();
 session_destroy();
 
+session_start();
+
+$_SESSION['message_type'] = 'info';
+$_SESSION['message'] = 'You have logged out!';
 header("Location: login.php");
 exit;

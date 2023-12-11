@@ -16,32 +16,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo "<script>alert('Wrong email or password!');</script>";
     } else {
         if (password_verify($_POST['password'], $result['password'])) {
-            echo "<script>alert('You are logged in!');</script>";
+            echo "<script>alert('You have logged in!');</script>";
 
             $_SESSION['type'] = $result['type'];
             if ($result['type'] == 'doctor') {
                 $_SESSION['doctor_id'] = $result['DoctorID'];
 
-                $stmt = $dbh->prepare('SELECT FirstName FROM Doctor WHERE ID=:id');
-                $stmt->execute([':id'=> $result['DoctorID']]);
-                $firstName = $stmt->fetch(PDO::FETCH_COLUMN);
+                $stmt = $dbh->prepare('SELECT FirstName, LastName FROM Doctor WHERE ID=:id');
+                $stmt->execute([':id' => $result['DoctorID']]);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                $firstName = $result['FirstName'];
+                $lastName = $result['LastName'];
+
+                $_SESSION['message_type'] = 'success';
+                $_SESSION['message'] = 'Welcome Dr. ' . $firstName . '!';
             } else {
                 $_SESSION['nurse_id'] = $result['NurseID'];
+
+                $stmt = $dbh->prepare('SELECT FirstName, LastName FROM Nurse WHERE ID=:id');
+                $stmt->execute([':id' => $result['NurseID']]);
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                $firstName = $result['FirstName'];
+                $lastName = $result['LastName'];
+
+                $_SESSION['message_type'] = 'success';
+                $_SESSION['message'] = 'Welcome Nurse ' . $firstName . '!';
             }
             $_SESSION['first_name'] = $firstName;
+            $_SESSION['last_name'] = $lastName;
 
             if ($_SESSION['type'] == 'doctor') {
-                header('Location: /doctor/index.php');
+                header('Location: ' . $_SESSION['last_page']);
                 exit;
             } elseif ($_SESSION['type'] == 'nurse') {
-                header('Location: /nurse/index.php');
+                header('Location: ' . $_SESSION['last_page']);
                 exit;
             } elseif ($_SESSION['type'] == 'admin') {
-                header('Location: /admin/index.php');
+                header('Location: ' . $_SESSION['last_page']);
                 exit;
             } else {
                 echo "<script>alert('Wrong email or password!');</script>";
             }
+        } else {
+            echo "<script>alert('Wrong email or password!');</script>";
         }
     }
 }

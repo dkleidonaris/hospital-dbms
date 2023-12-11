@@ -1,15 +1,18 @@
-CREATE TABLE `User` (
-  `email` varchar(255) PRIMARY KEY,
-  `password` varchar(255),
-  `type` varchar(255),
-  `NurseID` integer,
-  `DoctorID` integer
-);
+-- CREATE TABLE `Employee` (
+--   `ID` integer PRIMARY KEY AUTO_INCREMENT,
+--   `email` varchar(255) UNIQUE,
+--   `password` varchar(255),
+--   `FirstName` varchar(255),
+--   `LastName` varchar(255),
+--   `type` varchar(255),
+--   `DepartmentID` integer,
+--   `ContactNumber` varchar(255)
+-- );
 
-CREATE TABLE `Department` (
-  `ID` integer PRIMARY KEY AUTO_INCREMENT,
-  `Name` varchar(255)
-);
+-- CREATE TABLE `Department` (
+--   `ID` integer PRIMARY KEY AUTO_INCREMENT,
+--   `Name` varchar(255)
+-- );
 
 CREATE TABLE `Patient` (
   `ID` integer PRIMARY KEY,
@@ -22,23 +25,21 @@ CREATE TABLE `Patient` (
   `Address` varchar(255)
 );
 
-CREATE TABLE `Doctor` (
-  `ID` integer PRIMARY KEY AUTO_INCREMENT,
-  `FirstName` varchar(255),
-  `LastName` varchar(255),
-  `DepartmentID` integer,
-  `ContactNumber` varchar(255),
-  `email` varchar(255)
-);
-
-CREATE TABLE `Nurse` (
-  `ID` integer PRIMARY KEY AUTO_INCREMENT,
-  `FirstName` varchar(255),
-  `LastName` varchar(255),
-  `ContactNumber` varchar(255),
-  `email` varchar(255)
-);
-
+-- CREATE TABLE `Doctor` (
+--   `ID` integer PRIMARY KEY AUTO_INCREMENT,
+--   `FirstName` varchar(255),
+--   `LastName` varchar(255),
+--   `DepartmentID` integer,
+--   `ContactNumber` varchar(255),
+--   `email` varchar(255)
+-- );
+-- CREATE TABLE `Nurse` (
+--   `ID` integer PRIMARY KEY AUTO_INCREMENT,
+--   `FirstName` varchar(255),
+--   `LastName` varchar(255),
+--   `ContactNumber` varchar(255),
+--   `email` varchar(255)
+-- );
 CREATE TABLE `Appointment` (
   `PatientID` integer,
   `DoctorID` integer,
@@ -49,10 +50,12 @@ CREATE TABLE `Appointment` (
 CREATE TABLE `Admission` (
   `ID` integer PRIMARY KEY AUTO_INCREMENT,
   `PatientID` integer,
+  `DoctorID` integer,
   `NurseID` integer,
-  `AdmissionStartDate` date,
-  `AdmissionEndDate` date,
-  `RoomNumber` integer
+  `StartDate` date,
+  `EndDate` date,
+  `RoomNumber` integer,
+  `Reason` varchar(255)
 );
 
 CREATE TABLE `Medication` (
@@ -73,7 +76,7 @@ CREATE TABLE `Room` (
 );
 
 ALTER TABLE
-  `Doctor`
+  `Employee`
 ADD
   FOREIGN KEY (`DepartmentID`) REFERENCES `Department` (`ID`);
 
@@ -85,7 +88,7 @@ ADD
 ALTER TABLE
   `Appointment`
 ADD
-  FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
+  FOREIGN KEY (`DoctorID`) REFERENCES `Employee` (`ID`);
 
 ALTER TABLE
   `Admission`
@@ -95,7 +98,12 @@ ADD
 ALTER TABLE
   `Admission`
 ADD
-  FOREIGN KEY (`NurseID`) REFERENCES `Nurse` (`ID`);
+  FOREIGN KEY (`NurseID`) REFERENCES `Employee` (`ID`);
+
+ALTER TABLE
+  `Admission`
+ADD
+  FOREIGN KEY (`DoctorID`) REFERENCES `Employee` (`ID`);
 
 ALTER TABLE
   `Admission`
@@ -110,19 +118,18 @@ ADD
 ALTER TABLE
   `Medication`
 ADD
-  FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
+  FOREIGN KEY (`DoctorID`) REFERENCES `Employee` (`ID`);
 
 ALTER TABLE
   `Room`
 ADD
   FOREIGN KEY (`DepartmentID`) REFERENCES `Department` (`ID`);
 
-ALTER TABLE
-  `User`
-ADD
-  FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
-
-ALTER TABLE
-  `User`
-ADD
-  FOREIGN KEY (`NurseID`) REFERENCES `Nurse` (`ID`);
+-- ALTER TABLE
+--   `User`
+-- ADD
+--   FOREIGN KEY (`DoctorID`) REFERENCES `Doctor` (`ID`);
+-- ALTER TABLE
+--   `User`
+-- ADD
+--   FOREIGN KEY (`NurseID`) REFERENCES `Nurse` (`ID`);

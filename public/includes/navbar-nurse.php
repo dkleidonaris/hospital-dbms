@@ -9,7 +9,7 @@
             <a class="text-center md:text-2xl hover:text-blue-500" href="/doctor/patient.php">Patient Tab</a>
             <div class="ml-auto pl-10 mr-8 flex gap-1 items-center">
                 <p class="md:text-xl italic">Hello Nurse</p>
-                <p class="font-bold italic md:text-xl"><?php echo $_SESSION['first_name']?></p>
+                <p class="font-bold italic md:text-xl"><?php echo $_SESSION['last_name']?></p>
                 <p>|</p>
                 <a href="/logout.php" class="md:text-xl text-blue-600">Logout</a>
             </div>

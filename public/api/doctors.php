@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
 
     if (isset($_GET['department_id'])) {
-        $stmt = $dbh->prepare('SELECT Doctor.id, Doctor.LastName, Doctor.FirstName FROM Doctor INNER JOIN Department ON Doctor.DepartmentID=Department.ID WHERE Doctor.DepartmentID=:id');
+        $stmt = $dbh->prepare('SELECT Employee.id, Employee.LastName, Employee.FirstName FROM Employee INNER JOIN Department ON Employee.DepartmentID=Department.ID WHERE Employee.DepartmentID=:id AND Employee.type=\'doctor\'');
         $stmt->execute([':id' => $_GET['department_id']]);
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);

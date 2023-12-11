@@ -27,43 +27,23 @@ INSERT INTO `Patient` (`ID`, `FirstName`, `LastName`, `DateOfBirth`, `Gender`, `
 (9, 'Robert', 'Harris', '1999-12-05', 'Male', '555-0109', 'robert.harris@example.com', '606 Pine Ave'),
 (10, 'Laura', 'Clark', '1983-09-10', 'Female', '555-0110', 'laura.clark@example.com', '707 Maple Rd');
 
-INSERT INTO `Doctor` (`FirstName`, `LastName`, `DepartmentID`, `ContactNumber`, `email`) VALUES
-('Alice', 'Hamilton', 1, '1111111111', 'aliceh@hospital.com'),
-('Brian', 'Clark', 2, '2222222222', 'brianc@hospital.com'),
-('Catherine', 'Adams', 3, '3333333333', 'catherinea@hospital.com'),
-('Daniel', 'Baker', 4, '4444444444', 'danielb@hospital.com'),
-('Evelyn', 'Lewis', 5, '5555555555', 'evelynl@hospital.com'),
-('Frank', 'White', 6, '6666666666', 'frankw@hospital.com'),
-('Grace', 'Harris', 7, '7777777777', 'graceh@hospital.com'),
-('Henry', 'Martin', 8, '8888888888', 'henrym@hospital.com'),
-('Isabel', 'Thompson', 9, '9999999999', 'isabelt@hospital.com'),
-('Jacob', 'Garcia', 10, '1010101010', 'jacobg@hospital.com');
-
-INSERT INTO `Nurse` (`FirstName`, `LastName`, `ContactNumber`, `email`) VALUES
-('Nora', 'Jones', '1231231234', 'noraj@hospital.com'),
-('Oliver', 'King', '2342342345', 'oliverk@hospital.com'),
-('Patricia', 'Lee', '3453453456', 'patricial@hospital.com'),
-('Quinn', 'Walker', '4564564567', 'quinnw@hospital.com'),
-('Ryan', 'Scott', '5675675678', 'ryans@hospital.com'),
-('Sophia', 'Young', '6786786789', 'sophiay@hospital.com'),
-('Tyler', 'Allen', '7897897890', 'tylera@hospital.com'),
-('Ursula', 'Hill', '8908908901', 'ursulah@hospital.com'),
-('Victor', 'Lopez', '9019019012', 'victorl@hospital.com'),
-('Wendy', 'Hall', '0120120123', 'wendyh@hospital.com');
+-- INSERT INTO `Employee` (`email`, `password`, `FirstName`, `LastName`, `type`, `DepartmentID`, `ContactNumber`) VALUES
+-- ('d@d.com',  'Alice', 'Hamilton', 1, '1111111111', 'aliceh@hospital.com'),
+-- ('Nora', 'Jones', '1231231234', 'noraj@hospital.com');
 
 INSERT INTO `Appointment` (`PatientID`, `DoctorID`, `Date`) VALUES
 (1, 1, '2023-11-15 10:00:00'),
-(2, 2, '2023-11-16 11:00:00'),
-(3, 3, '2023-11-17 09:30:00');
+(2, 1, '2023-11-15 11:00:00'),
+(3, 1, '2023-11-15 09:30:00');
 
-INSERT INTO `Admission` (`PatientID`, `NurseID`, `AdmissionStartDate`, `AdmissionEndDate`, `RoomNumber`) VALUES
-(1, 1, '2023-11-01', '2023-11-10', 101),
-(2, 2, '2023-11-02', '2023-11-12', 102),
-(3, 3, '2023-11-03', '2023-11-13', 103);
+INSERT INTO `Admission` (`PatientID`, `DoctorID`, `NurseID`, `AdmissionStartDate`, `AdmissionEndDate`, `RoomNumber`) VALUES
+(1, 1, 2, '2023-11-01', '2023-11-10', 101),
+(2, 1, 2, '2023-11-02', '2023-11-12', 102),
+(3, 1, 2, '2023-11-03', '2023-11-13', 103);
 
 INSERT INTO `Medication` (`PatientID`, `DoctorID`, `Name`, `Dosage`, `Frequency`, `StartDate`, `EndDate`, `OtherDescription`) VALUES
 (1, 1, 'Medication A', '100mg', 'Twice a day', '2023-11-01', '2023-11-10', 'Take with food'),
-(2, 2, 'Medication B', '200mg', 'Once a day', '2023-11-02', '2023-11-12', 'Take on empty stomach');
+(2, 1, 'Medication B', '200mg', 'Once a day', '2023-11-02', '2023-11-12', 'Take on empty stomach');
 
 
 

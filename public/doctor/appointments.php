@@ -54,11 +54,12 @@ $PAGE_TITLE = "Appointments";
                 url: "/api/appointments.php",
                 data: {
                     'scope': 'doctor',
-                    'doctor_id': <?php echo $_SESSION['doctor_id'] ?>,
+                    'doctor_id': '<?php echo $_SESSION['employee_id']; ?>',
                     'appointment_date': $('#date_input').val()
                 },
                 success: function(result) {
                     var data = JSON.parse(result);
+                    console.log(data);
 
                     $('#first_name').html('<?php echo $_SESSION['first_name']; ?>');
                     $('#last_name').html('<?php echo $_SESSION['last_name']; ?>');
@@ -83,6 +84,10 @@ $PAGE_TITLE = "Appointments";
                     $('#appointments_div').removeClass('hidden');
                 }
             });
+        });
+
+        $(document).ready(function() {
+            
         });
     </script>
 </body>

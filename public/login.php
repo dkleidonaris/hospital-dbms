@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($_POST['email']) || empty($_POST['password'])) {
         echo "<script>alert('Username and password cannot be empty!');</script>";
     }
-    $stmt = $dbh->prepare("SELECT * FROM User WHERE User.email=:email");
+    $stmt = $dbh->prepare("SELECT * FROM Employee WHERE Employee.email=:email");
     $stmt->execute([':email' => $_POST['email']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -16,43 +16,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo "<script>alert('Wrong email or password!');</script>";
     } else {
         if (password_verify($_POST['password'], $result['password'])) {
-            echo "<script>alert('You have logged in!');</script>";
-
+            $_SESSION['employee_id'] = $result['ID'];
             $_SESSION['type'] = $result['type'];
+            $_SESSION['first_name'] = $result['firstName'];
+            $_SESSION['last_name'] = $result['lastName'];
             if ($result['type'] == 'doctor') {
-                $_SESSION['doctor_id'] = $result['DoctorID'];
-
-                $stmt = $dbh->prepare('SELECT FirstName, LastName FROM Doctor WHERE ID=:id');
-                $stmt->execute([':id' => $result['DoctorID']]);
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                $firstName = $result['FirstName'];
-                $lastName = $result['LastName'];
-
                 $_SESSION['message_type'] = 'success';
-                $_SESSION['message'] = 'Welcome Dr. ' . $firstName . '!';
+                $_SESSION['message'] = 'Welcome Dr. ' . $_SESSION['last_name'] . '!';
+            } elseif ($result['type'] == 'nurse') {
+                $_SESSION['message_type'] = 'success';
+                $_SESSION['message'] = 'Welcome Nurse ' . $_SESSION['last_name'] . '!';
             } else {
-                $_SESSION['nurse_id'] = $result['NurseID'];
-
-                $stmt = $dbh->prepare('SELECT FirstName, LastName FROM Nurse WHERE ID=:id');
-                $stmt->execute([':id' => $result['NurseID']]);
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                $firstName = $result['FirstName'];
-                $lastName = $result['LastName'];
-
                 $_SESSION['message_type'] = 'success';
-                $_SESSION['message'] = 'Welcome Nurse ' . $firstName . '!';
+                $_SESSION['message'] = 'Welcome ' . $_SESSION['last_name'] . '!';
             }
-            $_SESSION['first_name'] = $firstName;
-            $_SESSION['last_name'] = $lastName;
+
 
             if ($_SESSION['type'] == 'doctor') {
-                header('Location: ' . $_SESSION['last_page']);
+                header('Location: /doctor/index.php');
                 exit;
             } elseif ($_SESSION['type'] == 'nurse') {
-                header('Location: ' . $_SESSION['last_page']);
+                header('Location: /nurse/index.php');
                 exit;
-            } elseif ($_SESSION['type'] == 'admin') {
-                header('Location: ' . $_SESSION['last_page']);
+            } elseif ($_SESSION['type'] == 'secretary') {
+                header('Location: /secretary/index.php');
                 exit;
             } else {
                 echo "<script>alert('Wrong email or password!');</script>";

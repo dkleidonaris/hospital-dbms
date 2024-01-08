@@ -1,7 +1,7 @@
 <?php
-include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
+include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/doctor.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/nurse.php");
 
 
 $PAGE_TITLE = "Patient Tab";
@@ -16,7 +16,7 @@ $PAGE_TITLE = "Patient Tab";
 </head>
 
 <body>
-    <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/navbar-doctor.php"); ?>
+    <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/navbar-nurse.php"); ?>
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/header.php"); ?>
     <div class="flex flex-col gap-4 items-center">
         <div class="flex flex-row gap-2 justify-center items-center">
@@ -34,7 +34,7 @@ $PAGE_TITLE = "Patient Tab";
                 url: "/api/patients.php",
                 data: {
                     'insurance_id': $('#patient_input').val(),
-                    'scope': 'doctor'
+                    'scope': 'nurse'
                 },
                 success: function(result) {
                     var data = JSON.parse(result);
@@ -103,24 +103,18 @@ $PAGE_TITLE = "Patient Tab";
                                 year: 'numeric'
                             };
                             var startDate = new Date(a.StartDate);
+                            var endDate = new Date(a.EndDate);
                             var currDate = new Date();
-                            if (a.EndDate & currDate <= endDate) {
+                            if (currDate <= endDate) {
                                 $('#admissions_div').append('<div id="admission-' + (i + 1) + '" class="p-2 relative flex flex-col gap-2 border-green-500 border-2"><div id="admission-' + (i + 1) + '-details"></div></div>');
                             } else {
                                 $('#admissions_div').append('<div id="admission-' + (i + 1) + '" class="p-2 relative flex flex-col gap-2 border-gray-300 border-2"><div id="admission-' + (i + 1) + '-details"></div></div>');
                             }
                             $('#admission-' + (i + 1) + '-details').append('<div id="startdate_div" class="grid grid-cols-3"><p class="font-bold">Start Date:</p><p>' + startDate.toLocaleDateString('el-GR', options) + '</p></div>');
-                            if (a.EndDate && currDate <= endDate) {
+                            if (currDate <= endDate) {
                                 $('#startdate_div').append('<div class="flex"><span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400">Active</span></div>');
                             }
-                            if(a.EndDate) {
-                                var endDate = new Date(a.EndDate);
-                                $('#admission-' + (i + 1) + '-details').append('<div class="grid grid-cols-3"><p class="font-bold">End Date:</p><p class="col-span-2">' + endDate.toLocaleDateString('el-GR', options) + '</p></div>');
-
-                            } else {
-                                $('#admission-' + (i + 1) + '-details').append('<div class="grid grid-cols-3"><p class="font-bold">End Date:</p><p class="col-span-2">-</p></div>');
-
-                            }
+                            $('#admission-' + (i + 1) + '-details').append('<div class="grid grid-cols-3"><p class="font-bold">End Date:</p><p class="col-span-2">' + endDate.toLocaleDateString('el-GR', options) + '</p></div>');
                             $('#admission-' + (i + 1) + '-details').append('<div class="grid grid-cols-3"><p class="font-bold">Reason:</p><p class="col-span-2">' + a.Reason + '</p></div>');
                             $('#admission-' + (i + 1) + '-details').append('<div class="grid grid-cols-3"><p class="font-bold">Assigned Nurse:</p><p class="col-span-2">' + a.NurseLastName + '</p></div>');
                             $('#admission-' + (i + 1) + '-details').append('<div class="grid grid-cols-3"><p class="font-bold">Room:</p><p class="col-span-2">' + a.RoomNumber + '</p></div>');

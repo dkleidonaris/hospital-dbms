@@ -33,13 +33,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
             if ($_SESSION['type'] == 'doctor') {
-                header('Location: /doctor/index.php');
+                if (strpos($_SESSION['last_page'], 'doctor')) {
+                    header('Location: ' . $_SESSION['last_page']);
+                    
+                } else {
+                    header('Location: /doctor/index.php');
+                }
                 exit;
             } elseif ($_SESSION['type'] == 'nurse') {
-                header('Location: /nurse/index.php');
+                if (strpos($_SESSION['last_page'], 'nurse')) {
+                    header('Location: ' . $_SESSION['last_page']);
+                    
+                } else {
+                    header('Location: /nurse/index.php');
+                }
                 exit;
             } elseif ($_SESSION['type'] == 'secretary') {
-                header('Location: /secretary/index.php');
+                if (strpos($_SESSION['last_page'], 'secretary')) {
+                    header('Location: ' . $_SESSION['last_page']);
+                    
+                } else {
+                    header('Location: /secretary/index.php');
+                }
                 exit;
             } else {
                 echo "<script>alert('Wrong email or password!');</script>";

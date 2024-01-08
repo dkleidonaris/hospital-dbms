@@ -1,5 +1,5 @@
 <?php
-include('beginScripts.php');
+// include('beginScripts.php');
 
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', 'root');

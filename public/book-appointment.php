@@ -75,7 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 url: "/api/departments.php",
                 data: {},
                 success: function(result) {
-                    console.log(result);
                     if (true) {
                         var data = JSON.parse(result);
                         var select = document.getElementById('department_input');
@@ -109,7 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             xhr.open('GET', '/api/doctors.php?department_id=' + d.options[d.selectedIndex].value, true);
             xhr.onload = function() {
                 if (this.status == 200) {
-                    console.log(this.responseText);
                     var data = JSON.parse(this.responseText);
 
                     select = $('#doctor_input')[0];
@@ -150,7 +148,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         function dateChange() {
-            // var xhr = new XMLHttpRequest();
             var doctor = document.getElementById('doctor_input');
             var date = document.getElementById('date_input');
             $.ajax({
@@ -162,7 +159,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 },
                 success: function(result) {
                     var data = JSON.parse(result);
-                    console.log(data);
 
                     var unavail_appointments = [];
                     data.results.forEach(function(item) {
@@ -210,58 +206,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     table.classList.remove('hidden');
                 }
             });
-            // xhr.open('GET', '/api/appointments.php?doctor_id=' + doctor.options[doctor.selectedIndex].value + '&appointment_date=' + date.value, true);
-            // xhr.onload = function() {
-            //     if (this.status == 200) {
-            //         var data = JSON.parse(this.responseText);
-
-            //         var unavail_appointments = [];
-            //         data.results.forEach(function(item) {
-            //             unavail_appointments.push(item.Date);
-            //         });
-            //         var table = document.getElementById('timetable');
-            //         var body = document.getElementById('timetable_body');
-
-            //         // Clear existing options
-            //         body.innerHTML = '';
-
-            //         // Add new options
-            //         appointment_times.forEach(function(item) {
-            //             var row = document.createElement('tr');
-            //             body.appendChild(row);
-            //             var left_cell = document.createElement('th');
-            //             left_cell.classList.add('p-2');
-            //             left_cell.innerText = item;
-            //             row.appendChild(left_cell);
-            //             var right_cell = document.createElement('td');
-            //             right_cell.classList.add('text-center');
-            //             right_cell.classList.add('p-2');
-            //             row.appendChild(right_cell);
-            //             var input = document.createElement('input');
-            //             input.classList.add('mx-auto');
-            //             input.type = 'radio';
-            //             input.name = "appointment_time";
-            //             input.value = item;
-            //             if (unavail_appointments.includes(item)) {
-            //                 input.setAttribute('disabled', '');
-            //                 row.classList.add('opacity-20', 'bg-gray-400');
-            //             }
-            //             right_cell.appendChild(input);
-            //         });
-
-            //         $('input[type=radio][name=appointment_time]').change(function() {
-            //             $('#form_submit').removeClass('hidden');
-            //             this.parentElement.parentElement.classList.add('bg-blue-500');
-            //             $('input[type=radio][name=appointment_time]').each(function() {
-            //                 if (!this.checked) {
-            //                     this.parentElement.parentElement.classList.remove('bg-blue-500');
-            //                 }
-            //             });
-            //         });
-            //         table.classList.remove('hidden');
-            //     }
-            // };
-            // xhr.send();
         }
 
         $('#previous_patient_yes').change(function() {
@@ -284,9 +228,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 button.id = 'insurance_button';
                 $('#insurance_input').after(button);
                 $('#insurance_button').html('Search').addClass('p-2 bg-blue-400 rounded-md');
-                $('#insurance_button').click(function() {
+
+
+
+                $('#insurance_button').on('click', function() {
                     $.ajax({
-                        url: "/api/patient.php",
+                        url: "/api/patients.php",
                         data: {
                             'insurance_id': $('#insurance_input').val(),
                             'scope': 'appointment'
@@ -302,8 +249,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
                     });
                 });
-            }
 
+            }
         });
 
         $('#previous_patient_no').change(function() {
@@ -325,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (!$('#insuranceid_input').val() || !$('#firstname_input').val() || !$('#lastname_input').val() || !$('#dateofbirth_input').val() || !$('#gender_input').val() || !$('#contactnumber_input').val() || !$('#emailaddress_input').val() || !$('#address_input').val()) {
                     alert('Please fill all the fields!');
                 } else {
-                    $.post('/api/patient.php', {
+                    $.post('/api/patients.php', {
                         insurance_number: $('#insuranceid_input').val(),
                         first_name: $('#firstname_input').val(),
                         last_name: $('#lastname_input').val(),
@@ -336,7 +283,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         address: $('#address_input').val(),
                     }).done(function(response) {
                         var data = JSON.parse(response);
-                        console.log(response.status);
                         setPatient(data.results[0].ID, data.results[0].LastName, data.results[0].FirstName);
                         $('#patient_details').remove();
                     });
@@ -348,7 +294,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         });
 
         function setPatient(insuranceId, lastName, firstName) {
-            console.log(insuranceId);
             $('#patient_input').val(insuranceId);
             $('#insurance_div').remove();
             $('#patient_div').empty().append('<p>Hi</p>');
@@ -361,7 +306,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Load data when the document is ready
         $(document).ready(function() {
+            var today = new Date().toISOString().split('T')[0];
+            $('#date_input').attr('min', today);
 
+            $(document).on("keypress", function(e) {
+            if (e.which == 13) {
+                $('#insurance_button').click();
+            }
+        });
         });
     </script>
 </body>

@@ -4,9 +4,9 @@
             <a href="/"><img src="/assets/img/logo_full.png" width="600" height="100" class="h-16 w-auto mx-auto object-contain"></a>
         </div>
         <div class="md:col-span-2 flex flex-row gap-8 items-center">
-        <a class="text-center md:text-2xl hover:text-blue-500" href="/doctor/index.php">Dashboard</a>
-            <a class="text-center md:text-2xl hover:text-blue-500" href="/doctor/appointments.php">Appointments</a>
-            <a class="text-center md:text-2xl hover:text-blue-500" href="/doctor/patient.php">Patient Tab</a>
+        <a class="text-center md:text-2xl hover:text-blue-500" href="/nurse/index.php">Dashboard</a>
+            <a class="text-center md:text-2xl hover:text-blue-500" href="/nurse/shift.php">My Shift</a>
+            <a class="text-center md:text-2xl hover:text-blue-500" href="/nurse/patient.php">Patient Tab</a>
             <div class="ml-auto pl-10 mr-8 flex gap-1 items-center">
                 <p class="md:text-xl italic">Hello Nurse</p>
                 <p class="font-bold italic md:text-xl"><?php echo $_SESSION['last_name']?></p>

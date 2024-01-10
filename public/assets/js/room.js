@@ -8,12 +8,14 @@ function deleteRoom(id) {
             },
             success: function (response) {
                 alert('The room was deleted.');
+                return(true);
             },
             error: function (response) {
                 alert('There was a problem, please try again.');
+                return(false);
             }
         });
     } else {
-
+        return(false);
     }
 }

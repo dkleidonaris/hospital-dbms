@@ -3,7 +3,7 @@ include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/secretary.php");
 
-$PAGE_TITLE = "Edit Patient";
+$PAGE_TITLE = "Edit Admission";
 
 if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
     if (isset($_GET['id'])) {
@@ -100,8 +100,9 @@ if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
     <script src="/assets/js/patient.js"></script>
     <script>
         function deleteAction(id) {
-            deletePatient(id);
-            window.location.href = "/secretary/patients/index.php";
+            if (deleteAdmission(id)) {
+                window.location.href = "/secretary/admissions/index.php";
+            }
         }
     </script>
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/body-scripts.php"); ?>

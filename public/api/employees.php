@@ -14,27 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $orderBy = isset($_GET['order_by']) ? $_GET['order_by'] : 'ID';
     $orderDirection = isset($_GET['order_direction']) ? $_GET['order_direction'] : 'ASC';
 
-    // if (isset($_GET['q'])) {
-    //     if (isset($_GET['type'])) {
-    //         $stmt = $dbh->prepare("SELECT E.ID, E.email, E.firstName, E.lastName, E.type, D.ID as DepartmentID, D.Name as DepartmentName, E.contactNumber FROM Employee E LEFT JOIN Department D ON E.departmentID=D.ID WHERE " . isset($_GET['type']) ? "E.lastName LIKE CONCAT('%', ?,'%') AND" : "" . " E.type = ? ORDER BY E." . $orderBy . " " . $orderDirection);
-    //         $stmt->execute(array($_GET['q'], $_GET['type']));
-    //         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    //     } else {
-    //         $stmt = $dbh->prepare("SELECT E.ID, E.email, E.firstName, E.lastName, E.type, D.ID as DepartmentID, D.Name as DepartmentName, E.contactNumber FROM Employee E LEFT JOIN Department D ON E.departmentID=D.ID WHERE E.lastName LIKE CONCAT('%', ?,'%') ORDER BY E." . $orderBy . " " . $orderDirection);
-    //         $stmt->execute(array($_GET['q']));
-    //         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    //     }
-    // } else {
-    //     if (isset($_GET['type'])) {
-    //         $stmt = $dbh->prepare("SELECT E.ID, E.email, E.firstName, E.lastName, E.type, D.ID as DepartmentID, D.Name as DepartmentName, E.contactNumber FROM Employee E LEFT JOIN Department D ON E.departmentID=D.ID WHERE E.type = ? ORDER BY E." . $orderBy . " " . $orderDirection);
-    //         $stmt->execute(array($_GET['type']));
-    //         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    //     } else {
-    //         $stmt = $dbh->prepare("SELECT E.ID, E.email, E.firstName, E.lastName, E.type, D.ID as DepartmentID, D.Name as DepartmentName, E.contactNumber FROM Employee E LEFT JOIN Department D ON E.departmentID=D.ID ORDER BY E." . $orderBy . " " . $orderDirection);
-    //         $stmt->execute();
-    //         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    //     }
-    // }
     $params = [];
     if (isset($_GET['type'])) {
         $params[':type'] = $_GET['type'];

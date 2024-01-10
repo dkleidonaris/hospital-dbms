@@ -12,3 +12,8 @@ define('APPOINTMENT_TIMES', [
 ]);
 
 define('SITE_TITLE', 'ST\' NICHOLAS HOSPITAL');
+
+define('DB_SERVER', 'localhost');
+define('DB_USERNAME', 'root');
+define('DB_PASSWORD', '');
+define('DB_NAME', 'dbms');

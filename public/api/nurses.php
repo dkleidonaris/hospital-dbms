@@ -17,16 +17,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $stmt->execute([':id' => $_SESSION['employee_id'], ':date' => $currDate]);
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         $response['results'] = $results;
+
         $response['status'] = 'OK';
 
         echo json_encode($response);
         exit;
     } else {
-        $response['status'] = 'This is not allowed!';
-        echo json_encode($response);
+        $response['results'] = [];
 
+        $response['status'] = 'Not allowed!';
+
+        echo json_encode($response);
         http_response_code(400);
         exit;
     }

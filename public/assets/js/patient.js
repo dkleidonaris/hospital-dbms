@@ -16,6 +16,6 @@ function deletePatient(id) {
             }
         });
     } else {
-
+        return(false);
     }
 }

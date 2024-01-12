@@ -1,5 +1,6 @@
 <!-- PROJECT LOGO -->
 
+<<<<<<< HEAD
 <div align="center">
   <a href="https://github.com/dkleidonaris/hospital-dbms">
     <img src="public/assets/img/logo.png" alt="Logo" width="80" height="80">
@@ -147,3 +148,22 @@ Kleidonaris Dimitrios - kldimitrios@uth.gr
 Tzikas Aggelos - atzhkas@uth.gr
 
 Project Link: [https://github.com/dkleidonaris/hospital-dbms](https://github.com/dkleidonaris/hospital-dbms)
+=======
+```php
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.1.1/flowbite.min.js"></script>
+```
+
+### Built With
+
+This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
+
+* [![Next][Next.js]][Next-url]
+* [![React][React.js]][React-url]
+* [![Vue][Vue.js]][Vue-url]
+* [![Angular][Angular.io]][Angular-url]
+* [![Svelte][Svelte.dev]][Svelte-url]
+* [![Laravel][Laravel.com]][Laravel-url]
+* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
+* [![JQuery][JQuery.com]][JQuery-url]
+>>>>>>> d38fc2e7a10c4ce60211726aa2587078c2649b41

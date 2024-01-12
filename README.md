@@ -143,6 +143,6 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 Kleidonaris Dimitrios - kldimitrios@uth.gr
 <br />
-Tzhkas Aggelos - atzhkas@uth.gr
+Tzikas Aggelos - antzikas@uth.gr
 
 Project Link: [https://github.com/dkleidonaris/hospital-dbms](https://github.com/dkleidonaris/hospital-dbms)

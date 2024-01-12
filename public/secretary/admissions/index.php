@@ -3,7 +3,7 @@ include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/secretary.php");
 
-$PAGE_TITLE = "Employees";
+$PAGE_TITLE = "Admissions";
 ?>
 
 <!DOCTYPE html>
@@ -17,9 +17,8 @@ $PAGE_TITLE = "Employees";
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/navbar-secretary.php"); ?>
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/header.php"); ?>
 
-    <div class="my-4 max-w-xl flex gap-2 items-center mx-auto">
+    <div class="my-4 max-w-md flex gap-2 items-center mx-auto">
         <input id="search" placeholder="Enter the insurance number of the patient" type="text" class="w-full rounded-md p-2">
-        <button id="search-button" class="bg-blue-700 p-2 rounded-md text-white">Search</button>
     </div>
 
     <div class="px-4 my-8">
@@ -29,7 +28,12 @@ $PAGE_TITLE = "Employees";
                     <tr>
                         <th scope="col" class="w-52 px-6 py-3">
                             <div id="insurance_number" class="cursor-pointer order-by-div flex gap-2 items-center">
-                                <p>Insurance Number</p>
+                                <p>Patient Insurance Number</p>
+                            </div>
+                        </th>
+                        <th scope="col" class="w-52 px-6 py-3">
+                            <div id="insurance_number" class="cursor-pointer order-by-div flex gap-2 items-center">
+                                <p>Patient Name</p>
                             </div>
                         </th>
                         <th scope="col" class="w-52 px-6 py-3">
@@ -81,22 +85,26 @@ $PAGE_TITLE = "Employees";
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/body-scripts.php"); ?>
     <script src="/assets/js/admission.js"></script>
     <script>
-        $('#search-button').on('click', showAdmissions);
-        $('#search').on('keypress', (event) => {
-            if (event.keyCode == 13) {
-                showAdmissions();
-            }
-        });
+        showAdmissions();
 
+        $('#search').on('input', showAdmissions);
+        // $('#search').on('keypress', (event) => {
+        //     if (event.keyCode == 13) {
+        //         showAdmissions();
+        //     }
+        // });
 
         function showAdmissions() {
+            var data = {
+                order_by: 'AdmissionID',
+                order_direction: 'ASC'
+            };
+            if ($('#search').val()) {
+                data.insurance_id = $('#search').val();
+            }
             $.ajax({
                 url: '/api/admissions.php',
-                data: {
-                    insurance_id: $('#search').val(),
-                    order_by: 'AdmissionID',
-                    order_direction: 'ASC'
-                },
+                data: data,
                 success: function(response) {
                     data = JSON.parse(response);
 
@@ -114,6 +122,7 @@ $PAGE_TITLE = "Employees";
 
                             $('#tbody').append('<tr row-num="' + i + '" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"></tr>');
                             $("tr[row-num='" + i + "']").append('<th class="px-6 py-4">' + item.InsuranceNumber + '</th>');
+                            $("tr[row-num='" + i + "']").append('<td class="px-6 py-4">' + item.PatientLastName + ' ' + item.PatientFirstName + '</td>');
                             $("tr[row-num='" + i + "']").append('<td class="px-6 py-4">' + item.DoctorLastName + ' ' + item.DoctorFirstName + '</td>');
                             $("tr[row-num='" + i + "']").append('<th class="px-6 py-4">' + item.NurseLastName + '</th>');
                             $("tr[row-num='" + i + "']").append('<th class="px-6 py-4">' + admissionDate.toLocaleDateString('el-GR', options) + '</th>');

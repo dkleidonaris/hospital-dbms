@@ -12,9 +12,9 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['insurance_id'])) {
-        $orderBy = isset($_GET['order_by']) ? $_GET['order_by'] : 'InsuranceID';
+        $orderBy = isset($_GET['order_by']) ? $_GET['order_by'] : 'InsuranceNumber';
         $orderDirection = isset($_GET['order_direction']) ? $_GET['order_direction'] : 'ASC';
-        $stmt = $dbh->prepare('SELECT a.ID as AdmissionID, p.ID as InsuranceNumber, d.ID as DoctorID, d.LastName as DoctorLastName, d.FirstName as DoctorFirstName, n.LastName as NurseLastName, n.FirstName as NurseFirstName, a.StartDate, a.EndDate, a.RoomNumber, a.Reason FROM Patient p INNER JOIN Admission a ON p.ID=a.PatientID INNER JOIN Employee n on a.NurseID=n.ID INNER JOIN Employee d ON a.DoctorID=d.ID WHERE p.ID=:id ORDER BY ' . $orderBy . ' ' . $orderDirection);
+        $stmt = $dbh->prepare('SELECT a.ID as AdmissionID, p.ID as InsuranceNumber, p.FirstName as PatientFirstName, p.LastName as PatientLastName, d.ID as DoctorID, d.LastName as DoctorLastName, d.FirstName as DoctorFirstName, n.LastName as NurseLastName, n.FirstName as NurseFirstName, a.StartDate, a.EndDate, a.RoomNumber, a.Reason FROM Patient p INNER JOIN Admission a ON p.ID=a.PatientID INNER JOIN Employee n on a.NurseID=n.ID INNER JOIN Employee d ON a.DoctorID=d.ID WHERE p.ID=:id ORDER BY ' . $orderBy . ' ' . $orderDirection);
         $stmt->execute([':id' => $_GET['insurance_id']]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -22,11 +22,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         echo json_encode($response);
         exit;
     } else {
-        $response['results'] = [];
-        $response['status'] = 'No insurance ID provided';
+        $orderBy = isset($_GET['order_by']) ? $_GET['order_by'] : 'InsuranceNumber';
+        $orderDirection = isset($_GET['order_direction']) ? $_GET['order_direction'] : 'ASC';
+        $stmt = $dbh->prepare('SELECT a.ID as AdmissionID, p.ID as InsuranceNumber, p.FirstName as PatientFirstName, p.LastName as PatientLastName, d.ID as DoctorID, d.LastName as DoctorLastName, d.FirstName as DoctorFirstName, n.LastName as NurseLastName, n.FirstName as NurseFirstName, a.StartDate, a.EndDate, a.RoomNumber, a.Reason FROM Patient p INNER JOIN Admission a ON p.ID=a.PatientID INNER JOIN Employee n on a.NurseID=n.ID INNER JOIN Employee d ON a.DoctorID=d.ID ORDER BY ' . $orderBy . ' ' . $orderDirection);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        $response['results'] = $results;
         echo json_encode($response);
-        http_response_code(400);
+        exit;
     }
 } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['insurance_number'], $_POST['first_name'], $_POST['last_name'], $_POST['date_of_birth'], $_POST['gender'], $_POST['contact_number'], $_POST['email_address'], $_POST['address'])) {

@@ -5,29 +5,13 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/secretary.php");
 
 $PAGE_TITLE = "Edit Admission";
 
-if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
-    if (isset($_GET['id'])) {
-        $stmt = $dbh->prepare('SELECT P.LastName as PatientLastName, P.FirstName as PatientFirstName, A.PatientID as InsuranceID, D.ID as DoctorID, N.ID as NurseID, A.ID as AdmissionID, A.StartDate, A.EndDate, A.RoomNumber, A.Reason FROM Admission A JOIN Patient P ON A.PatientID=P.ID JOIN Employee D ON A.DoctorID=D.ID JOIN Employee N ON A.NurseID=N.ID WHERE A.ID=:id');
-        $stmt->execute([':id' => $_GET['id']]);
-        if (!$stmt->rowCount()) {
-            http_response_code(404);
-            exit;
-        }
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    } else {
-        http_response_code(404);
-        exit;
-    }
-} elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $stmt = $dbh->prepare('UPDATE Admission SET DoctorID=?, NurseID=?, EndDate=?, RoomNumber=?, Reason=? WHERE ID=?');
-    $stmt->execute([$_POST['doctor_id'], $_POST['nurse_id'], $_POST['end_date'], $_POST['room_number'], $_POST['reason'], $_POST['id']]);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $stmt = $dbh->prepare('INSERT INTO Admission (PatientID, DoctorID, NurseID, StartDate, EndDate, RoomNumber, Reason) VALUES(?, ?, ?, ?, ?, ?, ?)');
+    $stmt->execute([$_POST['insurance_id'], $_POST['doctor_id'], $_POST['nurse_id'], $_POST['start_date'], $_POST['end_date'], $_POST['room_number'], $_POST['reason']]);
 
     $_SESSION['message_type'] = 'info';
-    $_SESSION['message'] = 'Your changes have been saved!';
-    header('Location: /secretary/admissions/edit.php?id=' . $_POST['id']);
-    exit;
-} else {
-    http_response_code(400);
+    $_SESSION['message'] = 'The admission has been created!';
+    header('Location: /secretary/admissions/edit.php?id=' . $dbh->lastInsertId());
     exit;
 }
 ?>
@@ -59,18 +43,14 @@ if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
 
     <form class="max-w-md mx-auto" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
         <div class="my-4 flex items-center gap-2">
-            <label for="id" class="min-w-36">Admission ID:</label>
-            <div x-data="{open : false}" @mouseover="open = true" @mouseover.away="open = false" class="relative">
-                <input name="id" value="<?php echo $result['AdmissionID']; ?>" id="id" type="text" class="bg-gray-200 text-gray-700 flex-1 rounded-md p-2" readonly>
-                <p x-show="open" class="absolute ml-4 left-full top-0 whitespace-nowrap p-2 bg-slate-200 shadow-md" x-cloak>You cannot edit this field. If you want to, delete this admission and create a new one.</p>
+            <label for="patient" class="min-w-36">Patient:</label>
+            <div id="patient-div" class="flex-1 relative">
+                <input name="insurance_id" id="patient" placeholder="Search for patient by insurance Number" type="text" class="w-full rounded-md p-2 flex-1">
             </div>
         </div>
         <div class="my-4 flex items-center gap-2">
             <label for="patient_name" class="min-w-36">Patient Name:</label>
-            <div x-data="{open : false}" @mouseover="open = true" @mouseover.away="open = false" class="relative">
-                <input name="patient_name" value="<?php echo $result['PatientLastName'] . " " . $result['PatientFirstName']; ?>" id="patient_name" type="text" class="flex-1 bg-gray-200 text-gray-700 rounded-md p-2" readonly>
-                <p x-show="open" class="absolute ml-4 left-full top-0 whitespace-nowrap p-2 bg-slate-200 shadow-md" x-cloak>You cannot edit this field. If you want to, delete this admission and create a new one.</p>
-            </div>
+            <input id="patient_name" type="text" class="w-full  text-gray-700 bg-gray-400 rounded-md p-2 flex-1" readonly>
         </div>
         <div class="my-4 flex items-center gap-2">
             <label for="doctor" class="min-w-36">Doctor in charge:</label>
@@ -86,14 +66,11 @@ if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
         </div>
         <div class="my-4 flex items-center gap-2">
             <label for="start_date" class="min-w-36">Admission Date:</label>
-            <div x-data="{open : false}" @mouseover="open = true" @mouseover.away="open = false" class="relative">
-                <input name="start_date" value="<?php echo $result['StartDate']; ?>" id="start_date" type="date" class="flex-1 bg-gray-200 text-gray-700 rounded-md p-2" readonly>
-                <p x-show="open" class="absolute ml-4 left-full top-0 whitespace-nowrap p-2 bg-slate-200 shadow-md" x-cloak>You cannot edit this field. If you want to, delete this admission and create a new one.</p>
-            </div>
+            <input name="start_date" id="start_date" type="date" class="flex-1 rounded-md p-2">
         </div>
         <div class="my-4 flex items-center gap-2">
             <label for="end_date" class="min-w-36">Discharge Date:</label>
-            <input name="end_date" value="<?php echo $result['EndDate']; ?>" id="end_date" type="date" class="flex-1 rounded-md p-2" required>
+            <input name="end_date" id="end_date" type="date" class="flex-1 rounded-md p-2" required>
         </div>
         <div class="my-4 flex items-center gap-2">
             <label for="room" class="min-w-36">Room:</label>
@@ -103,7 +80,7 @@ if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
         </div>
         <div class="my-4 flex items-center gap-2">
             <label for="reason" class="min-w-36">Reason:</label>
-            <textarea id="reason" name="reason" rows="4" cols="50" class="p-2 rounded-md"><?php echo $result['Reason']; ?></textarea>
+            <textarea id="reason" name="reason" rows="4" cols="50" class="p-2 rounded-md"></textarea>
         </div>
         <button id="submit" type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-base w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
     </form>
@@ -111,25 +88,68 @@ if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
 
     <script src="/assets/js/admission.js"></script>
     <script>
-        nurseID = <?php echo $result['NurseID']; ?>;
-        doctorID = <?php echo $result['DoctorID']; ?>;
-        roomNumber = <?php echo $result['RoomNumber']; ?>;
+        $(window).click(function() {
+            $('#search_results').remove();
+        });
+
+        $('#patient-div').click(function(event) {
+            event.stopPropagation();
+        });
 
         showDoctors();
         showNurses();
         showRooms();
 
+        $('#patient').on('input', patientSearch).on('focus', patientSearch);
+
+        function setPatient(id, Name) {
+            $('#patient').val(id);
+            $('#patient_name').val(Name);
+            $('#search_results').remove();
+        }
+
+        function patientSearch() {
+            var data = {
+                scope: "secretary"
+            };
+            if ($('#patient').val()) {
+                data.insurance_id = $('#patient').val();
+
+            } else {
+                $('#search_results').remove();
+            }
+            $.ajax({
+                url: "/api/patients.php",
+                data: data,
+                success: function(response) {
+                    data = JSON.parse(response);
+                    console.log(data);
+
+                    if (data.results.length > 0) {
+                        $('#search_results').remove();
+                        $('#patient-div').append('<div id="search_results" class="absolute shadow-md left-0 right-0 bg-white z-[1000] max-h-44 overflow-y-auto"></div>');
+                        $('#search_results').append('<div class="p-2 grid grid-cols-3"><p class="font-bold col-span-1">ID</p><p class="font-bold col-span-2">Name</p></div>');
+                        data.results.forEach(function(item) {
+                            name = item.LastName + ' ' + item.FirstName;
+                            $('#search_results').append('<div onclick="setPatient(\'' + item.ID + '\', \'' + name + '\')" class="p-2 cursor-pointer grid grid-cols-3 hover:bg-gray-200"><p class="col-span-1">' + item.ID + '</p><p class="col-span-2">' + name + '</p></div>');
+                        });
+                    } else {
+                        $('#search_results').remove();
+                        $('#patient-div').append('<div id="search_results" class="p-2 absolute left-0 right-0 bg-white"><p>No results</p></div>');
+                    }
+                }
+            });
+        }
+
         function showRooms() {
             $.ajax({
                 url: "/api/rooms.php",
-                data: {
-                    change_room_number: roomNumber
-                },
+                data: {},
                 success: function(response) {
                     data = JSON.parse(response);
 
                     data.results.forEach(function(item) {
-                        $("select[name='room_number']").append('<option value="' + item.RoomNumber + '"' + (item.RoomNumber == roomNumber ? 'selected' : '') + '>' + item.RoomNumber + '</option>');
+                        $("select[name='room_number']").append('<option value="' + item.RoomNumber + '">' + item.RoomNumber + '</option>');
 
                     });
 
@@ -147,7 +167,7 @@ if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
                     data = JSON.parse(response);
 
                     data.results.forEach(function(item) {
-                        $("select[name='nurse_id']").append('<option value="' + item.ID + '"' + (item.ID == nurseID ? 'selected' : '') + '>' + item.lastName + ' ' + item.firstName + '</option>');
+                        $("select[name='nurse_id']").append('<option value="' + item.ID + '">' + item.lastName + ' ' + item.firstName + '</option>');
 
                     });
 
@@ -165,7 +185,7 @@ if (($_SERVER['REQUEST_METHOD'] == 'GET')) {
                     data = JSON.parse(response);
 
                     data.results.forEach(function(item) {
-                        $("select[name='doctor_id']").append('<option value="' + item.ID + '"' + (item.ID == doctorID ? 'selected' : '') + '>' + item.lastName + ' ' + item.firstName + '</option>');
+                        $("select[name='doctor_id']").append('<option value="' + item.ID + '">' + item.lastName + ' ' + item.firstName + '</option>');
 
                     });
 

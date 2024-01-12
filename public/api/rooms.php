@@ -14,14 +14,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $params = [];
     $orderBy = isset($_GET['order_by']) ? $_GET['order_by'] : 'RoomNumber';
     $orderDirection = isset($_GET['order_direction']) ? $_GET['order_direction'] : 'ASC';
+
+    if (isset($_GET['change_room_number'])) {
+        $stmt = $dbh->prepare("SELECT Room.RoomNumber, Department.Name as DepartmentName FROM Room JOIN Department ON Room.departmentID=Department.ID WHERE Room.RoomNumber=? UNION SELECT Room.RoomNumber, Department.Name as DepartmentName FROM Room JOIN Department ON Room.DepartmentID=Department.ID WHERE Room.RoomNumber NOT IN (SELECT R.RoomNumber FROM Room R JOIN Admission A ON R.RoomNumber=A.RoomNumber) ORDER BY " . $orderBy . " " . $orderDirection);
+        $stmt->execute(array($_GET['change_room_number']));
+
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+        $response['results'] = $results;
+        $response['status'] = 'OK';
+
+        echo json_encode($response);
+        exit;
+    }
+
     if (isset($_GET['q'])) {
         $params[':room_number'] = $_GET['q'];
     }
     if (isset($_GET['department_id'])) {
         $params[':department_id'] = $_GET['department_id'];
-        $stmt = $dbh->prepare("SELECT R.RoomNumber, D.Name as DepartmentName FROM Room R JOIN Department D ON R.departmentID=D.ID " .  (isset($_GET['q']) ? "WHERE R.RoomNumber=:room_number " : "") . " AND R.DepartmentID=:department_id ORDER BY " . $orderBy . " " . $orderDirection);
+        $stmt = $dbh->prepare("SELECT R.RoomNumber, D.Name as DepartmentName FROM Room R JOIN Department D ON R.departmentID=D.ID WHERE" .  (isset($_GET['q']) ? " R.RoomNumber=:room_number AND" : "") . " R.DepartmentID=:department_id AND R.RoomNumber NOT IN (SELECT Room.RoomNumber FROM Room JOIN Admission ON Room.RoomNumber=Admission.RoomNumber) ORDER BY " . $orderBy . " " . $orderDirection);
     } else {
-        $stmt = $dbh->prepare("SELECT R.RoomNumber, D.Name as DepartmentName FROM Room R JOIN Department D ON R.departmentID=D.ID " .  (isset($_GET['q']) ? "WHERE R.RoomNumber=:room_number " : "") . " ORDER BY " . $orderBy . " " . $orderDirection);
+        $stmt = $dbh->prepare("SELECT R.RoomNumber, D.Name as DepartmentName FROM Room R JOIN Department D ON R.departmentID=D.ID WHERE " .  (isset($_GET['q']) ? " R.RoomNumber=:room_number AND" : "") . " R.RoomNumber NOT IN (SELECT Room.RoomNumber FROM Room JOIN Admission ON Room.RoomNumber=Admission.RoomNumber) ORDER BY " . $orderBy . " " . $orderDirection);
     }
     $stmt->execute($params);
 

@@ -55,7 +55,7 @@ $PAGE_TITLE = "My Shift";
             $('#tab-content').html('');
             $('#tab-content').append('<div class="mb-4 grid grid-cols-3 gap-4"><p class="font-bold">Insurance ID: </p><p class="col-span-2">' + shifts[index].InsuranceID + '</p></div>');
             $('#tab-content').append('<div class="mb-4 grid grid-cols-2 gap-4"><div class="flex gap-2"><p class="font-bold">Last Name: </p><p class="col-span-2">' + shifts[index].PatientLastName + '</p></div><div class="flex gap-2"><p class="font-bold">First Name: </p><p class="col-span-2">' + shifts[index].PatientFirstName + '</p></div></div>');
-            
+
             const options = {
                 year: 'numeric',
                 month: 'numeric',
@@ -76,6 +76,9 @@ $PAGE_TITLE = "My Shift";
             } else {
                 $('#tab-content').append('<div class="mb-4 grid grid-cols-2 gap-4"><div class="flex gap-2"><p class="font-bold">Admission: </p><p>' + AdmissionDate.toLocaleDateString('el-GR', options) + '</p></div><div class="flex gap-2"><p class="font-bold">Discharge: </p><p>-</p></div></div>');
             }
+
+            $('#tab-content').append('<div class="flex justify-center"><a href="/nurse/patient.php?insurance_id=' + shifts[index].InsuranceID + '" target="_blank" class="p-2 rounded-md bg-blue-400">View patient tab</a></div>');
+
 
 
             $('.tab').each(function(i) {

@@ -218,10 +218,8 @@ $PAGE_TITLE = "Employees";
                 url: '/api/employees.php',
                 data: data,
                 success: function(response) {
-                    console.log(response);
                     $('#tbody').html('');
                     data = JSON.parse(response);
-                    console.log(data);
 
                     if (data.results.length) {
                         data.results.forEach(function(item, i) {

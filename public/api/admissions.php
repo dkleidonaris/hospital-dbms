@@ -2,13 +2,13 @@
 include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 
-// if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
-//     $response['results'] = [];
-//     $response['status'] = 'You do not have permission to access the selected resource';
-//     echo json_encode($response);
-//     http_response_code(403);
-//     exit;
-// }
+if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
+    $response['results'] = [];
+    $response['status'] = 'You do not have permission to access the selected resource';
+    echo json_encode($response);
+    http_response_code(403);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['insurance_id'])) {
@@ -47,13 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         exit;
     }
 } elseif ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
-    // if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
-    //     $response['results'] = [];
-    //     $response['status'] = 'You do not have permission to access the selected resource';
-    //     echo json_encode($response);
-    //     http_response_code(403);
-    //     exit;
-    // }
     parse_str(file_get_contents('php://input'), $DELETE);
 
     if (isset($DELETE['id'])) {

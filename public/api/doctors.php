@@ -24,25 +24,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         exit;
     }
 } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_SESSION['type']) && $_SESSION['type'] == 'secretary') {
-        if (isset($_POST['email'], $_POST['password'], $_POST['firstName'], $_POST['lastName'], $_POST['departmentID'], $_POST['contactNumber'])) {
-            $stmt = $dbh->prepare('INSERT INTO Employee (email, password, firstName, lastName, type, departmentID, contactNumber) VALUES (?, ?, ?, ?, ?, ?, ?)');
-            $stmt->execute(array($_POST['email'], password_hash($_POST['password'], PASSWORD_DEFAULT), $_POST['firstName'], $_POST['lastName'], 'doctor', $_POST['departmentID'], $_POST['contactNumber']));
-            $response['status'] = 'Doctor ' . $_POST['lastName'] . ' ' . $_POST['firstName'] . ' has been created';
-
-            echo json_encode($response);
-            exit;
-        } else {
-            $response['status'] = 'Please provide all parameters needed for creating a doctor!';
-            echo json_encode($response);
-
-            http_response_code(400);
-            exit;
-        }
-    } else {
-        $response['status'] = 'You do not have permission to create this resource!';
+    if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
+        $response['results'] = [];
+        $response['status'] = 'You do not have permission to access the selected resource';
         echo json_encode($response);
         http_response_code(403);
+        exit;
+    }
+    if (isset($_POST['email'], $_POST['password'], $_POST['firstName'], $_POST['lastName'], $_POST['departmentID'], $_POST['contactNumber'])) {
+        $stmt = $dbh->prepare('INSERT INTO Employee (email, password, firstName, lastName, type, departmentID, contactNumber) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute(array($_POST['email'], password_hash($_POST['password'], PASSWORD_DEFAULT), $_POST['firstName'], $_POST['lastName'], 'doctor', $_POST['departmentID'], $_POST['contactNumber']));
+        $response['status'] = 'Doctor ' . $_POST['lastName'] . ' ' . $_POST['firstName'] . ' has been created';
+
+        echo json_encode($response);
+        exit;
+    } else {
+        $response['status'] = 'Please provide all parameters needed for creating a doctor!';
+        echo json_encode($response);
+
+        http_response_code(400);
         exit;
     }
 } else {

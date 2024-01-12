@@ -21,13 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     echo json_encode($response);
     exit;
 } elseif ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
-    // if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
-    //     $response['results'] = [];
-    //     $response['status'] = 'You do not have permission to access the selected resource';
-    //     echo json_encode($response);
-    //     http_response_code(403);
-    //     exit;
-    // }
+    if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
+        $response['results'] = [];
+        $response['status'] = 'You do not have permission to access the selected resource';
+        echo json_encode($response);
+        http_response_code(403);
+        exit;
+    }
     parse_str(file_get_contents('php://input'), $DELETE);
 
     if (isset($DELETE['id'])) {

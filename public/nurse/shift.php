@@ -3,6 +3,8 @@ include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/nurse.php");
 
+print_r($_SESSION);
+
 
 $PAGE_TITLE = "My Shift";
 
@@ -39,10 +41,9 @@ $PAGE_TITLE = "My Shift";
                 success: function(result) {
                     var data = JSON.parse(result);
                     shifts = data.results;
-
                     console.log(shifts);
 
-                    data.results.forEach(function(item, i) {
+                    shifts.forEach(function(item, i) {
                         $('#tabs').append('<p id="tab-' + i + '" onclick="changeTab(' + i + ')" class="p-4 text-xl hover:bg-gray-300 cursor-pointer tab">' + item.PatientLastName + ' ' + item.PatientFirstName + '</p>');
                     });
 

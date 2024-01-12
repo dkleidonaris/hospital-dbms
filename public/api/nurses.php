@@ -3,7 +3,7 @@ include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['scope']) && $_GET['scope'] == 'shift') {
-        // if (isset($_SESSION['type']) || $_SESSION['type'] != 'nurse') {
+        // if (!isset($_SESSION['type']) || $_SESSION['type'] != 'nurse') {
         //     $response['results'] = [];
         //     $response['status'] = 'You do not have permission to access this resource!';
         //     echo json_encode($response);

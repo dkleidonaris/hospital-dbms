@@ -85,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 },
                 success: function(response) {
                     data = JSON.parse(response);
-                    console.log(data);
 
                     $('#department').append('<option value="">Select a department</option>');
 

@@ -11,5 +11,5 @@ session_start();
 
 $_SESSION['message_type'] = 'info';
 $_SESSION['message'] = 'You have logged out!';
-header("Location: login.php");
+header("Location: index.php");
 exit;

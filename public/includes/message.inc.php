@@ -75,4 +75,4 @@ HTML;
   }
 }
 
-echo "<div class=\"my-4 max-w-3xl mx-auto\">" . $html . "</div>";
+echo $html;

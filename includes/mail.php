@@ -1,6 +1,8 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 
+include_once($_SERVER['DOCUMENT_ROOT'] . "/../config.php");
+
 $mail = new PHPMailer();
     $mail->isSMTP();
     $mail->Host = "hospital.odeit.gr";

@@ -59,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 },
                 success: function(result) {
                     var data = JSON.parse(result);
-                    console.log(data);
                     if (data.results.length > 0) {
                         $('#room_div').after('<p id="room_error" class="text-red-500">This room already exists!</p>');
                         $("form").submit(function(e) {

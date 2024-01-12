@@ -2,13 +2,13 @@
 include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 
-// if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
-//     $response['results'] = [];
-//     $response['status'] = 'You do not have permission to access the selected resource';
-//     echo json_encode($response);
-//     http_response_code(403);
-//     exit;
-// }
+if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
+    $response['results'] = [];
+    $response['status'] = 'You do not have permission to access the selected resource';
+    echo json_encode($response);
+    http_response_code(403);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $params = [];
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $params[':department_id'] = $_GET['department_id'];
         $stmt = $dbh->prepare("SELECT R.RoomNumber, D.Name as DepartmentName FROM Room R JOIN Department D ON R.departmentID=D.ID WHERE" .  (isset($_GET['q']) ? " R.RoomNumber=:room_number AND" : "") . " R.DepartmentID=:department_id AND R.RoomNumber NOT IN (SELECT Room.RoomNumber FROM Room JOIN Admission ON Room.RoomNumber=Admission.RoomNumber) ORDER BY " . $orderBy . " " . $orderDirection);
     } else {
-        $stmt = $dbh->prepare("SELECT R.RoomNumber, D.Name as DepartmentName FROM Room R JOIN Department D ON R.departmentID=D.ID WHERE " .  (isset($_GET['q']) ? " R.RoomNumber=:room_number AND" : "") . " R.RoomNumber NOT IN (SELECT Room.RoomNumber FROM Room JOIN Admission ON Room.RoomNumber=Admission.RoomNumber) ORDER BY " . $orderBy . " " . $orderDirection);
+        $stmt = $dbh->prepare("SELECT R.RoomNumber, D.Name as DepartmentName FROM Room R JOIN Department D ON R.departmentID=D.ID " .  (isset($_GET['q']) ? " WHERE R.RoomNumber=:room_number" : "") . " ORDER BY " . $orderBy . " " . $orderDirection);
     }
     $stmt->execute($params);
 
@@ -49,13 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     echo json_encode($response);
     exit;
 } elseif ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
-    // if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
-    //     $response['results'] = [];
-    //     $response['status'] = 'You do not have permission to access the selected resource';
-    //     echo json_encode($response);
-    //     http_response_code(403);
-    //     exit;
-    // }
     parse_str(file_get_contents('php://input'), $DELETE);
 
     if (isset($DELETE['id'])) {

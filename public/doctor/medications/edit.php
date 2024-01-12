@@ -1,17 +1,37 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
-include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/secretary.php");
+include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/doctor.php");
 
-$PAGE_TITLE = "Create Admission";
+$PAGE_TITLE = "Edit Medication";
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $stmt = $dbh->prepare('INSERT INTO Admission (PatientID, DoctorID, NurseID, StartDate, EndDate, RoomNumber, Reason) VALUES(?, ?, ?, ?, ?, ?, ?)');
-    $stmt->execute([$_POST['insurance_id'], $_POST['doctor_id'], $_POST['nurse_id'], $_POST['start_date'], $_POST['end_date'], $_POST['room_number'], $_POST['reason']]);
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    if (isset($_GET['id'])) {
+        $stmt = $dbh->prepare('SELECT * from Medication M WHERE ID=?');
+        $stmt->execute(array($_GET['id']));
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($stmt->rowCount() < 1) {
+            die("No Medication with the given ID");
+        } else {
+            if($result['DoctorID'] != $_SESSION['employee_id']) {
+                die("You don't have permission to edit this! Contact the prescribing doctor: ");
+            }
+        }
+    } else {
+        die('You haven\'t provided the id for editing!');
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $stmt = $dbh->prepare('UPDATE Medication SET Name=?, Dosage=?, Frequency=?, StartDate=?, EndDate=?, OtherDescription=? WHERE ID=?');
+    $stmt->debugDumpParams();
+
+    $stmt->execute([$_POST['med_name'], $_POST['dosage'], $_POST['frequency'], $_POST['start_date'], $_POST['end_date'], $_POST['description'], $_POST['med_id']]);
+    $stmt->debugDumpParams();
 
     $_SESSION['message_type'] = 'info';
-    $_SESSION['message'] = 'The admission has been created!';
-    header('Location: /secretary/admissions/edit.php?id=' . $dbh->lastInsertId());
+    $_SESSION['message'] = 'Your changes have been saved!';
+    header('Location: /doctor/patient.php?insurance_id=' . $_POST['patient_id']);
     exit;
 }
 ?>
@@ -28,59 +48,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/header.php"); ?>
 
 
-    <div class="flex justify-center py-4">
-        <button onclick="deleteAction('<?php echo $result['AdmissionID']; ?>')" type="button" class="mx-auto inline-flex gap-2 items-center px-5 py-2.5 text-sm font-medium text-center text-white bg-red-500 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-            Delete
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 fill-white cursor-pointer">
-                <g>
-                    <path fill="none" d="M0 0h24v24H0z" />
-                    <path d="M7 4V2h10v2h5v2h-2v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6H2V4h5zM6 6v14h12V6H6zm3 3h2v8H9V9zm4 0h2v8h-2V9z" />
-                </g>
-            </svg>
-        </button>
-    </div>
-
-
     <form class="max-w-md mx-auto" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+    <input name="patient_id" value="<?php echo $result['PatientID']?>" type="text" class="hidden">
         <div class="my-4 flex items-center gap-2">
-            <label for="patient" class="min-w-36">Patient:</label>
-            <div id="patient-div" class="flex-1 relative">
-                <input name="insurance_id" id="patient" placeholder="Search for patient by insurance Number" type="text" class="w-full rounded-md p-2 flex-1">
-            </div>
+            <label for="med_id" class="min-w-36">Medication ID:</label>
+            <input name="med_id" id="patient" value="<?php echo $_GET['id']; ?>" type="text" class="w-full  text-gray-700 bg-gray-400 rounded-md p-2 flex-1" readonly>
         </div>
         <div class="my-4 flex items-center gap-2">
-            <label for="patient_name" class="min-w-36">Patient Name:</label>
-            <input id="patient_name" type="text" class="w-full  text-gray-700 bg-gray-400 rounded-md p-2 flex-1" readonly>
+            <label for="med_name" class="min-w-36">Medication Name:</label>
+            <input name="med_name" value="<?php echo $result['Name']; ?>" id="med_name" type="text" class="flex-1 rounded-md p-2">
         </div>
         <div class="my-4 flex items-center gap-2">
-            <label for="doctor" class="min-w-36">Doctor in charge:</label>
-            <select name="doctor_id" id="doctor" class="flex-1 rounded-md p-2">
-                <option value="">Select a doctor</option>
-            </select>
+            <label for="dosage" class="min-w-36">Dosage</label>
+            <input name="dosage" value="<?php echo $result['Dosage']; ?>" id="dosage" type="text" class="flex-1 rounded-md p-2">
         </div>
         <div class="my-4 flex items-center gap-2">
-            <label for="nurse" class="min-w-36">Nurse in charge:</label>
-            <select name="nurse_id" id="doctor" class="flex-1 rounded-md p-2">
-                <option value="">Select a nurse</option>
-            </select>
+            <label for="frequency" class="min-w-36">Frequency:</label>
+            <input name="frequency" value="<?php echo $result['Frequency']; ?>" id="frequency" type="text" class="flex-1 rounded-md p-2">
         </div>
         <div class="my-4 flex items-center gap-2">
-            <label for="start_date" class="min-w-36">Admission Date:</label>
-            <input name="start_date" id="start_date" type="date" class="flex-1 rounded-md p-2">
+            <label for="start_date" class="min-w-36">Start Date:</label>
+            <input name="start_date" value="<?php echo $result['StartDate']; ?>" id="start_date" type="date" class="flex-1 rounded-md p-2" required>
         </div>
         <div class="my-4 flex items-center gap-2">
-            <label for="end_date" class="min-w-36">Discharge Date:</label>
-            <input name="end_date" id="end_date" type="date" class="flex-1 rounded-md p-2" required>
+            <label for="end_date" class="min-w-36">End Date:</label>
+            <input name="end_date" value="<?php echo $result['EndDate']; ?>" id="end_date" type="date" class="flex-1 rounded-md p-2" required>
         </div>
         <div class="my-4 flex items-center gap-2">
-            <label for="room" class="min-w-36">Room:</label>
-            <select name="room_number" id="room" class="flex-1 p-2 rounded-md">
-                <option value="">Select a room</option>
-            </select>
-        </div>
-        <div class="my-4 flex items-center gap-2">
-            <label for="reason" class="min-w-36">Reason:</label>
-            <textarea id="reason" name="reason" rows="4" cols="50" class="p-2 rounded-md"></textarea>
+            <label for="description" class="min-w-36">Details:</label>
+            <textarea id="description" name="description" rows="4" cols="50" class="p-2 rounded-md"><?php echo $result['OtherDescription']; ?></textarea>
         </div>
         <button id="submit" type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-base w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
     </form>

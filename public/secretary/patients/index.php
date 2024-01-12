@@ -209,7 +209,6 @@ $PAGE_TITLE = "Patients";
                 success: function(response) {
                     $('#tbody').html('');
                     data = JSON.parse(response);
-                    console.log(data);
 
                     if (data.results.length) {
                         data.results.forEach(function(item, i) {

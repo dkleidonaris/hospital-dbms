@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $response['results']['admissions'] = $results;
 
-                $stmt = $dbh->prepare('SELECT d.LastName as DoctorLastName, m.Name, m.Dosage, m.Frequency, m.StartDate, m.EndDate, m.OtherDescription FROM Medication m INNER JOIN Patient p ON m.PatientID=p.ID INNER JOIN Employee d ON m.DoctorID=d.ID WHERE p.ID=:id');
+                $stmt = $dbh->prepare('SELECT d.ID as DoctorID, d.LastName as DoctorLastName, m.ID as MedicationID, m.Name, m.Dosage, m.Frequency, m.StartDate, m.EndDate, m.OtherDescription FROM Medication m INNER JOIN Patient p ON m.PatientID=p.ID INNER JOIN Employee d ON m.DoctorID=d.ID WHERE p.ID=:id');
                 $stmt->execute(array(':id' => $_GET['insurance_id']));
                 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $response['results']['medication'] = $results;
@@ -95,13 +95,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 exit;
             }
         } elseif ($_GET['scope'] == 'secretary') {
-            // if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
-            //     $response['results'] = [];
-            //     $response['status'] = 'You do not have permission to access the selected resource';
-            //     echo json_encode($response);
-            //     http_response_code(403);
-            //     exit;
-            // }
+            if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
+                $response['results'] = [];
+                $response['status'] = 'You do not have permission to access the selected resource';
+                echo json_encode($response);
+                http_response_code(403);
+                exit;
+            }
             $orderBy = isset($_GET['order_by']) ? $_GET['order_by'] : 'ID';
             $orderDirection = isset($_GET['order_direction']) ? $_GET['order_direction'] : 'ASC';
 
@@ -155,13 +155,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         exit;
     }
 } elseif ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
-    // if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
-    //     $response['results'] = [];
-    //     $response['status'] = 'You do not have permission to access the selected resource';
-    //     echo json_encode($response);
-    //     http_response_code(403);
-    //     exit;
-    // }
+    if (empty($_SESSION['type']) || $_SESSION['type'] != 'secretary') {
+        $response['results'] = [];
+        $response['status'] = 'You do not have permission to access the selected resource';
+        echo json_encode($response);
+        http_response_code(403);
+        exit;
+    }
     parse_str(file_get_contents('php://input'), $DELETE);
 
     if (isset($DELETE['id'])) {

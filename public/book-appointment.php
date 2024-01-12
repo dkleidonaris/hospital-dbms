@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         // Add new options
                         data.results.forEach(function(item) {
                             var option = document.createElement('option');
-                            option.value = item.Id;
+                            option.value = item.ID;
                             option.textContent = item.Name;
                             select.appendChild(option);
                         });
@@ -229,8 +229,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $('#insurance_input').after(button);
                 $('#insurance_button').html('Search').addClass('p-2 bg-blue-400 rounded-md');
 
-
-
                 $('#insurance_button').on('click', function() {
                     $.ajax({
                         url: "/api/patients.php",
@@ -255,11 +253,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $('#previous_patient_no').change(function() {
             $('#insurance_div').remove();
-            $('#patient_div').after('<div id="patient_details" class="flex flex-col gap-4 items-center"></div>');
+            $('#patient_div').after('<div id="patient_details" class="flex flex-col items-center gap-4"></div>');
             $('#patient_details').prepend('<p class="font-bold text-xl">Patient Details</p>');
             $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="insurance_number">Insurance Number</label><input type="text" id="insuranceid_input" name="insurance_number" class="p-2 rounded-md"></div>');
-            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="first_name">First Name</label><input type="text" id="firstname_input" name="first_name" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<p id="insurance_error" class="hidden font-bold text-red-500">Please enter a number consisting of 5 digits</p>');
             $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="last_name">Last Name</label><input type="text" id="lastname_input" name="last_name" class="p-2 rounded-md"></div>');
+            $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="first_name">First Name</label><input type="text" id="firstname_input" name="last_name" class="p-2 rounded-md"></div>');
             $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="date_of_birth">Date of Birth</label><input type="date" id="dateofbirth_input" name="date_of_birth" class="p-2 rounded-md"></div>');
             $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="Gender">Gender</label><select id="gender_input" name="gender" class="p-2 rounded-md"></select></div>');
             $('select[name=gender]').append('<option value="male" selected>Male</option><option value="female">Female</option>');
@@ -268,7 +267,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $('#patient_details').append('<div class="flex flex-row gap-2 items-center"><label for="address">Address</label><input type="text" id="address_input" name="address" class="p-2 rounded-md"></div>');
             $('#patient_details').append('<button id="patient_register" class="p-2 rounded-md bg-blue-500">Register</button>');
 
-            $('#patient_register').click(function() {
+
+            function patientRegister() {
                 if (!$('#insuranceid_input').val() || !$('#firstname_input').val() || !$('#lastname_input').val() || !$('#dateofbirth_input').val() || !$('#gender_input').val() || !$('#contactnumber_input').val() || !$('#emailaddress_input').val() || !$('#address_input').val()) {
                     alert('Please fill all the fields!');
                 } else {
@@ -287,8 +287,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $('#patient_details').remove();
                     });
                 }
-            });
+            }
+            $('#patient_register').click(patientRegister);
 
+            $('#insuranceid_input').on('input', function() {
+                regex = new RegExp("^[0-9]{5}$");
+
+                if (regex.test($('#insuranceid_input').val())) {
+                    $('#insurance_error').addClass('hidden');
+                    $('#patient_register').click(patientRegister);
+                } else {
+                    $('#insurance_error').removeClass('hidden');
+                    $('#patient_register').unbind("click");
+                }
+
+            });
 
 
         });
@@ -310,10 +323,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $('#date_input').attr('min', today);
 
             $(document).on("keypress", function(e) {
-            if (e.which == 13) {
-                $('#insurance_button').click();
-            }
-        });
+                if (e.which == 13) {
+                    $('#insurance_button').click();
+                }
+            });
         });
     </script>
 </body>

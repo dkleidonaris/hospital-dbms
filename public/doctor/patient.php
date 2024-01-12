@@ -22,13 +22,21 @@ $PAGE_TITLE = "Patient Tab";
         <div class="flex flex-row gap-2 justify-center items-center">
             <label for="insurance_id">Please enter the patient's insurance ID:</label>
             <input id="patient_input" type="text" class="p-2 rounded-md">
-            <button id="patient_submit" class="relative p-2 bg-blue-500 rounded-md">Submit</button>
+            <button id="patient_submit" class="relative p-2 bg-blue-500 text-white rounded-md">Submit</button>
         </div>
         <div id="tab_div" class="w-full px-4 flex flex-row gap-2"></div>
     </div>
 
+    <script src="/assets/js/medication.js"></script>
     <?php include($_SERVER['DOCUMENT_ROOT'] . "/includes/body-scripts.php"); ?>
     <script>
+        var doctorID = <?php echo $_SESSION['employee_id']; ?>;
+
+        function deleteAction(id) {
+            deleteMedication(id)
+            patientSearch();
+        }
+
         function patientSearch() {
             $.ajax({
                 url: "/api/patients.php",
@@ -61,7 +69,7 @@ $PAGE_TITLE = "Patient Tab";
                         $('#details_div').append('<div class="sm:grid sm:grid-cols-3 gap-2 items-center"><p class="font-bold">Address: </p><p>' + data.results.patient.Address + '</p></div>');
 
                         $('#tab_div').append('<div id="medication_div" class="grow flex flex-col gap-4 bg-gray-200 p-4 rounded-md shadow-md"></div>');
-                        $('#medication_div').append('<p class="font-bold text-2xl">Medication History</p>');
+                        $('#medication_div').append('<div id="meds-title" class="flex gap-2"><p class="font-bold text-2xl">Medication History</p><a href="/doctor/medications/create.php?insurance_id=' + $('#patient_input').val() + '" class="bg-green-700 hover:bg-green-500 rounded-md py-1 px-2 text-white">Create</a></div>');
                         data.results.medication.forEach(function(m, i) {
                             const options = {
                                 day: 'numeric',
@@ -88,10 +96,13 @@ $PAGE_TITLE = "Patient Tab";
                                 $('#medication-' + (i + 1) + '-details').after('<span class="absolute top-1 left-36 bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-400">Inactive</span>');
                             } else {
                                 $('#medication-' + (i + 1) + '-details').after('<span class="absolute top-1 left-36 bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400">Active</span>');
-
                             }
 
+                            if (m.DoctorID == doctorID) {
+                                $('#medication-' + (i + 1) + '-details').after('<a href="/doctor/medications/edit.php?id=' + m.MedicationID + '" class="absolute cursor-pointer top-0 left-60 bg-blue-700 hover:bg-blue-500 rounded-md py-1 px-2 text-white">Edit</a>');
+                                $('#medication-' + (i + 1) + '-details').after('<a onclick="deleteAction(\'' + m.MedicationID + '\')" class="absolute cursor-pointer top-0 left-72 bg-red-700 hover:bg-red-500 rounded-md py-1 px-2 text-white">Delete</a>');
 
+                            }
                         });
 
                         $('#tab_div').append('<div id="admissions_div" class="grow flex flex-col gap-4 bg-gray-200 p-4 rounded-md shadow-md"></div>');
@@ -113,7 +124,7 @@ $PAGE_TITLE = "Patient Tab";
                             if (a.EndDate && currDate <= endDate) {
                                 $('#startdate_div').append('<div class="flex"><span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-400">Active</span></div>');
                             }
-                            if(a.EndDate) {
+                            if (a.EndDate) {
                                 var endDate = new Date(a.EndDate);
                                 $('#admission-' + (i + 1) + '-details').append('<div class="grid grid-cols-3"><p class="font-bold">End Date:</p><p class="col-span-2">' + endDate.toLocaleDateString('el-GR', options) + '</p></div>');
 

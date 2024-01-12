@@ -2,16 +2,14 @@
 include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 $PAGE_TITLE = "Contact us";
 
-use PHPMailer\PHPMailer\PHPMailer;
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     include($_SERVER['DOCUMENT_ROOT'] . "/../includes/mail.php");
     $mail->From = "site@hospital.odeit.gr";
     $mail->FromName = "Hospital DBMS";
-    $mail->addAddress("dkleidonaris@gmail.com");
+    $mail->addAddress(SITE_EMAIL);
     $mail->isHTML(true);
     $mail->Subject = "Contact Form";
-    $mail->Body = "<body><span>Subject: " . $_POST['name'] . "</body>";
+    $mail->Body = "<body><h1>From: " . $_POST['name'] . "</h1><h1>Email: " . $_POST['email'] . "</h1><h2>" . $_POST['message'] . "</h2></body>";
     $mail->AltBody = "This is the plain text version of the email content";
 
     if (!$mail->send()) {
@@ -63,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label for="message">Your Message: </label>
                         </td>
                         <td class="p-2">
-                            <textarea name="message" rows="10" cols="25" class="pl-2 border-2 border-black rounded-md resize"></textarea>
+                            <textarea name="message" rows="10" cols="50" class="pl-2 border-2 border-black rounded-md resize"></textarea>
                         </td>
                     </tr>
                 </table>

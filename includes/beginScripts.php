@@ -8,6 +8,3 @@ session_status() === PHP_SESSION_ACTIVE ?: session_start();
 if ($_SERVER['REQUEST_URI'] != '/login.php' && $_SERVER['REQUEST_URI'] != '/404.php' && !strpos($_SERVER['REQUEST_URI'], 'api')) {
     $_SESSION['last_page'] = $_SERVER['REQUEST_URI'];
 }
-
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);

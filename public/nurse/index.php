@@ -3,10 +3,6 @@ include($_SERVER['DOCUMENT_ROOT'] . "/../includes/beginScripts.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/dbHandler.php");
 include_once($_SERVER['DOCUMENT_ROOT'] . "/../includes/auth/nurse.php");
 
-
-// $stmt = $dbh->prepare('INSERT INTO User VALUES(:email, :password, :type, :nurse_id, :doctor_id)');
-// $stmt->execute([':email' => 'w@w.com', ':password' => password_hash("123", PASSWORD_DEFAULT), ':type' => 'nurse', ':doctor_id' => null, ':nurse_id' => 1]);
-
 $PAGE_TITLE = "Nurse Dashboard";
 
 

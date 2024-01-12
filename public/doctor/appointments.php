@@ -62,7 +62,6 @@ $PAGE_TITLE = "Appointments";
                 },
                 success: function(result) {
                     var data = JSON.parse(result);
-                    console.log(data);
 
                     $('#first_name').html('<?php echo $_SESSION['first_name']; ?>');
                     $('#last_name').html('<?php echo $_SESSION['last_name']; ?>');
@@ -78,7 +77,7 @@ $PAGE_TITLE = "Appointments";
                     $('#tbody').html('');
                     if (data.results.length) {
                         data.results.forEach(function(item, i) {
-                            $('#tbody').append('<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700"><th scope="row" class="px-6 py-4 font-medium text-gray-700 whitespace-nowrap">' + item.Date + '</th><td class="px-6 py-4 font-bold text-base text-black">' + item.LastName + ' ' + item.FirstName + '</td><td><a href="/doctor/patient.php?insurance_id=' + item.ID + '" target="_blank"><div class="flex justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M7 7h8.586L5.293 17.293l1.414 1.414L17 8.414V17h2V5H7v2z"/></svg></div></a></td></tr>');
+                            $('#tbody').append('<tr class="bg-white border-b"><th scope="row" class="px-6 py-4 font-medium text-gray-700 whitespace-nowrap">' + item.Date + '</th><td class="px-6 py-4 font-bold text-base text-black">' + item.LastName + ' ' + item.FirstName + '</td><td><a href="/doctor/patient.php?insurance_id=' + item.ID + '" target="_blank"><div class="flex justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M7 7h8.586L5.293 17.293l1.414 1.414L17 8.414V17h2V5H7v2z"/></svg></div></a></td></tr>');
                         });
                     } else {
                         $('#tbody').html('<p class="m-4 text-center text-base text-black">There are no booked appointments for the date that you selected!</p>');

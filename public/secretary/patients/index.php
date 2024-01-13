@@ -95,10 +95,8 @@ $PAGE_TITLE = "Patients";
         });
 
         function deleteAction(id) {
-            if (deletePatient(id)) {
-                fetchPatients();
-            }
-
+            deletePatient(id);
+            fetchPatients();
         }
 
         function orderByF(orderByNew) {

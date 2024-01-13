@@ -27,7 +27,7 @@ CREATE TABLE `Employee` (
   `firstName` VARCHAR(255) DEFAULT NULL,
   `lastName` VARCHAR(255) DEFAULT NULL,
   `type` VARCHAR(255) NOT NULL,
-  `departmentID` INT(11) NOT NULL,
+  `departmentID` INT(11),
   `contactNumber` VARCHAR(255) DEFAULT NULL
 );
 
